@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { Camera, Mail, Crown, Headphones, ChevronRight, Flame, LogOut } from 'lucide-react';
+import { Camera, Mail, Crown, Headphones, ChevronRight, Flame } from 'lucide-react';
 import type { UserAccount, AppTab } from '../types';
 import { AVATAR_GRADIENTS } from '../types';
 
@@ -58,23 +58,7 @@ export default function ProfileScreen({ user, onOpenAuth, onLogout, onNavigateTa
         <h4 className="text-base font-bold text-white mt-3">{user.displayName}</h4>
         <p className="text-xs text-[#a0a0a0] mt-0.5">{subtitle}</p>
 
-        {/* Login / Logout button */}
-        {user.isGuest ? (
-          <button
-            onClick={onOpenAuth}
-            className="mt-4 px-6 py-2 rounded-xl border border-[#34D399] text-[#34D399] text-sm font-semibold bg-transparent hover:bg-emerald-500/10 transition-all"
-          >
-            Login
-          </button>
-        ) : (
-          <button
-            onClick={onLogout}
-            className="mt-4 px-6 py-2 rounded-xl border border-[#EF4444] text-[#EF4444] text-sm font-semibold bg-transparent hover:bg-red-500/10 transition-all flex items-center gap-1.5"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </button>
-        )}
+
       </div>
 
       {/* Stats Row — 3 cards */}

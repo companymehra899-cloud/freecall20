@@ -29,6 +29,9 @@ export interface Friend {
   avatarColorIndex: number;
   lastMessage: string;
   lastMessageTime: string;
+  level: string;
+  streak: number;
+  location: string;
 }
 
 export interface ChatMessage {

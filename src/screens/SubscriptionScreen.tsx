@@ -1,4 +1,4 @@
-import { Diamond, CheckCircle, Phone, MessageSquare, Star, Zap, ShoppingBag, ShieldCheck, Loader2 } from 'lucide-react';
+import { Crown, Zap, Check, ShieldCheck, Loader2 } from 'lucide-react';
 import type { UserAccount } from '../types';
 
 interface Props {
@@ -20,13 +20,6 @@ export default function SubscriptionScreen({
 }: Props) {
   return (
     <div className="flex-1 overflow-y-auto px-5 py-3 space-y-5">
-      {/* Header */}
-      <div className="flex items-center gap-2.5">
-        <Diamond className="w-6 h-6 text-[#FCD34D]" />
-        <h3 className="text-xl font-bold text-[#F8FAFC]">SpeakFree VIP Pass</h3>
-      </div>
-      <p className="text-xs text-[#94A3B8] -mt-3">Connect directly with friends & practice unlimited speaking</p>
-
       {/* Billing alert */}
       {billingMessage && (
         <div
@@ -41,90 +34,85 @@ export default function SubscriptionScreen({
 
       {/* Active VIP or Plan card */}
       {user.isSubscribed ? (
-        <div className="p-5 rounded-3xl bg-gradient-to-br from-[#2E230B] to-[#1E1707] border border-[#F59E0B]">
+        <div className="p-5 rounded-3xl bg-gradient-to-br from-[#2E230B] to-[#1E1707] border border-[#eab308]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <CheckCircle className="w-5 h-5 text-[#FCD34D]" />
+              <Check className="w-5 h-5 text-emerald-400" />
               <span className="text-base font-bold text-[#FCD34D]">VIP PRO ACTIVE</span>
             </div>
             <span className="px-2.5 py-1 rounded-lg bg-[#F59E0B] text-black text-[10px] font-bold">5-MONTH PASS</span>
           </div>
-          <div className="mt-4 text-center">
-            <p className="text-xs text-[#64748B]">Subscription Valid Until</p>
-            <p className="text-xl font-bold text-[#F8FAFC] mt-1">{user.subscriptionExpiryDate || '5 Months Active'}</p>
+          <div className="mt-4 text-center py-2.5 bg-slate-950/70 rounded-2xl border border-amber-500/20">
+            <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Subscription Valid Until</p>
+            <p className="text-lg font-bold text-white mt-1">{user.subscriptionExpiryDate || '5 Months Active'}</p>
             {user.googlePlayOrderId && (
-              <p className="text-[10px] text-[#FCD34D]/70 mt-1.5">Google Play Order: {user.googlePlayOrderId}</p>
+              <p className="text-[10px] text-amber-400/90 font-mono mt-1">Order: {user.googlePlayOrderId}</p>
             )}
           </div>
-          <p className="text-xs text-[#94A3B8] text-center mt-3">
-            Unlocked: Unlimited Non-Stop Call Duration & Direct Friend Chat!
+          <p className="text-xs text-emerald-300 text-center mt-3 font-semibold">
+            ✓ Verified Google Play Purchase Receipt Active
           </p>
         </div>
       ) : (
-        <div className="p-5 rounded-3xl bg-gradient-to-b from-[#271F0C] to-[#171307] border-2 border-[#F59E0B] text-center">
-          <div className="inline-block px-3.5 py-1.5 rounded-full bg-[#F59E0B]">
-            <span className="text-xs font-bold text-black">⭐ OFFICIAL GOOGLE PLAY PASS</span>
+        <div className="p-5 rounded-3xl bg-gradient-to-br from-amber-500/20 via-slate-900 to-slate-950 border border-[#eab308] text-center">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/30 mb-2.5">
+            <Crown className="w-4 h-4" />
+            <span>OFFICIAL GOOGLE PLAY PASS</span>
           </div>
-          <div className="flex items-baseline justify-center gap-1 mt-4">
-            <span className="text-4xl font-bold text-[#FCD34D]">₹100</span>
-            <span className="text-sm text-[#94A3B8]">/ 5 Months</span>
-          </div>
-          <p className="text-xs text-[#FCD34D]/85 mt-2">Just ₹20 per month • Official Google Play In-App Subscription</p>
-        </div>
-      )}
 
-      {/* Benefits checklist */}
-      <div className="p-4 rounded-2xl bg-[#13171F] border border-[#262E3E] space-y-4">
-        <h4 className="text-sm font-bold text-[#F8FAFC]">Everything Included in VIP Plan:</h4>
-        {[
-          { icon: Phone, color: '#34D399', title: 'Unlimited Non-Stop Call Duration', desc: 'No 10-minute call disconnects. Practice for as long as you desire.' },
-          { icon: MessageSquare, color: '#A78BFA', title: 'Direct Friend Calling & Chat', desc: 'Directly call and text message favorite study buddies anytime.' },
-          { icon: Star, color: '#FCD34D', title: 'Verified VIP Crown Badge', desc: 'Distinguished crown badge on your profile and incoming call screens.' },
-          { icon: Zap, color: '#10B981', title: 'Priority HD Low-Latency Audio', desc: 'Real-time WebRTC audio connection with lowest latency.' },
-        ].map(b => (
-          <div key={b.title} className="flex items-start gap-3.5">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${b.color}26` }}>
-              <b.icon className="w-5 h-5" style={{ color: b.color }} />
-            </div>
-            <div>
-              <h5 className="text-sm font-semibold text-[#F8FAFC]">{b.title}</h5>
-              <p className="text-xs text-[#94A3B8] mt-0.5">{b.desc}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+          {/* Heading */}
+          <h3 className="text-lg font-extrabold text-white">5-Month English Booster Pack</h3>
 
-      {/* Google Play CTA */}
-      {!user.isSubscribed && (
-        <div className="p-4 rounded-2xl bg-[#1B212D] border border-[#262E3E] flex flex-col items-center">
-          <div className="flex items-center gap-2 mb-3.5">
-            <ShoppingBag className="w-4 h-4 text-[#34D399]" />
-            <span className="text-xs font-semibold text-[#34D399]">Google Play In-App Purchase</span>
+          {/* Pricing */}
+          <div className="my-2.5 flex items-baseline justify-center gap-2">
+            <span className="text-3xl font-black text-amber-400">₹100</span>
+            <span className="text-sm text-slate-400 line-through">₹499</span>
+            <span className="text-xs text-emerald-400 font-extrabold">80% OFF</span>
           </div>
+          <p className="text-xs text-slate-200">Just ₹20/month for 5 Full Months of Unlimited Voice Practice</p>
+
+          {/* CTA */}
           <button
             onClick={() => (user.isGuest ? onOpenAuth() : onSubscribeGooglePlay())}
             disabled={isBillingProcessing}
-            className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#F59E0B] to-[#D97706] flex items-center justify-center gap-2 disabled:opacity-60"
+            className="w-full mt-4 py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 hover:brightness-110 transition-all disabled:opacity-60"
           >
             {isBillingProcessing ? (
               <>
-                <Loader2 className="w-5 h-5 text-black animate-spin" />
-                <span className="text-sm font-bold text-black">Connecting to Google Play...</span>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Connecting to Google Play...</span>
               </>
             ) : (
               <>
-                <Diamond className="w-5 h-5 text-black" />
-                <span className="text-sm font-bold text-black">
-                  {user.isGuest ? 'Log In to Subscribe (₹100 / 5 Mo)' : 'Subscribe with Google Play'}
-                </span>
+                <Zap className="w-4 h-4 fill-current" />
+                <span>Subscribe with Google Play (₹100 / 5 Mo)</span>
               </>
             )}
           </button>
-          <p className="text-[10px] text-[#64748B] text-center mt-3 leading-relaxed">
-            🔒 Managed securely by Google Play. Instant activation upon purchase receipt verification. Cancel anytime in Google Play Store subscriptions.
+          <p className="text-xs text-slate-400 mt-2.5">
+            🔒 Google Play Billing Library v7 • Instant receipt verification
           </p>
         </div>
       )}
+
+      {/* What's included */}
+      <div className="p-4 rounded-2xl bg-[#1e293b] border border-slate-800">
+        <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-3">What's included in VIP Pass:</h4>
+        <div className="space-y-2.5 text-xs text-slate-200">
+          {[
+            'Unlimited Non-Stop Call Duration (No 10-min cut)',
+            'Direct Friend Audio Calling & Text Chat',
+            'Verified VIP Crown Badge on Profile',
+            'Priority HD Low-Latency Audio Stream',
+          ].map(item => (
+            <div key={item} className="flex items-center gap-2.5">
+              <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>{item}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

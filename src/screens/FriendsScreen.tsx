@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { UserPlus, MessageSquare, Phone, Diamond, Lock } from 'lucide-react';
+import { UserPlus, MessageSquare, Phone, Flame } from 'lucide-react';
 import type { UserAccount, Friend } from '../types';
 import { AVATAR_GRADIENTS } from '../types';
 
@@ -19,8 +19,6 @@ export default function FriendsScreen({
   onAddFriend,
   onDirectCallFriend,
   onOpenChat,
-  onOpenSubscription,
-  onOpenAuth,
 }: Props) {
   const [searchInput, setSearchInput] = useState('');
 
@@ -31,145 +29,95 @@ export default function FriendsScreen({
     }
   };
 
+  const onlineCount = friends.filter(f => f.isOnline).length;
+
   return (
-    <div className="flex-1 overflow-y-auto px-5 py-2 space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-xl font-bold text-[#F8FAFC]">Speaking Friends</h3>
-          <p className="text-xs text-[#64748B]">Direct 1-on-1 Voice Calling & Chat</p>
-        </div>
-        <div className="px-3 py-2 rounded-2xl bg-[#1B212D] border border-[#262E3E] text-right">
-          <p className="text-[10px] text-[#64748B]">My Code</p>
-          <p className="text-xs font-bold text-[#34D399]">{user.friendCode}</p>
-        </div>
-      </div>
-
-      {/* Guest warning */}
-      {user.isGuest && (
-        <div className="p-4 rounded-2xl bg-[#1B212D] border border-purple-500/50 flex items-center justify-between">
-          <div className="min-w-0">
-            <h4 className="text-sm font-bold text-[#A78BFA]">Login Required for Friends</h4>
-            <p className="text-xs text-[#94A3B8] mt-0.5">Log in to add friends, save contacts, and make direct calls.</p>
-          </div>
-          <button
-            onClick={onOpenAuth}
-            className="px-3.5 py-2 rounded-xl bg-[#8B5CF6] text-white text-xs font-bold shrink-0 ml-3"
-          >
-            Login
-          </button>
-        </div>
-      )}
-
-      {/* Add friend input */}
-      <div className="flex items-center gap-2.5">
+    <div className="flex-1 overflow-y-auto px-4 py-2 space-y-4">
+      {/* Add Friend */}
+      <div className="flex items-center gap-2 p-3 rounded-2xl bg-[#161b22] border border-[#262E3E]">
         <input
           type="text"
-          placeholder="Enter Friend Code (e.g. SPK-4821)"
+          placeholder="Enter Partner ID (e.g. 1042)"
           value={searchInput}
           onChange={e => setSearchInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleAdd()}
-          className="flex-1 bg-[#13171F] border border-[#262E3E] rounded-2xl px-4 py-3.5 text-xs text-[#F8FAFC] placeholder-[#64748B] focus:outline-none focus:border-emerald-400"
+          className="flex-1 bg-[#0d1117] border border-[#262E3E] rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
         />
         <button
           onClick={handleAdd}
-          className="w-12 h-12 rounded-2xl bg-emerald-500 flex items-center justify-center shrink-0"
+          className="px-3.5 py-2 rounded-xl bg-emerald-500 text-slate-950 text-xs font-bold flex items-center gap-1.5 shrink-0"
         >
-          <UserPlus className="w-5 h-5 text-black" />
+          <UserPlus className="w-4 h-4" />
+          Add
         </button>
       </div>
 
-      {/* VIP banner */}
-      {!user.isSubscribed && (
-        <button
-          onClick={onOpenSubscription}
-          className="w-full p-4 rounded-2xl bg-[#241D0E] border border-[#F59E0B]/50 flex items-center justify-between"
-        >
-          <div className="flex items-center gap-2.5 text-left">
-            <Diamond className="w-5 h-5 text-[#FCD34D] shrink-0" />
-            <div>
-              <h4 className="text-sm font-bold text-[#FCD34D]">Unlock Direct Calling & Text Chat</h4>
-              <p className="text-xs text-[#94A3B8]">₹100 for 5 Months unlimited plan</p>
-            </div>
-          </div>
-          <span className="text-xs font-bold text-[#FCD34D]">Upgrade ➔</span>
-        </button>
-      )}
+      {/* Buddies list header */}
+      <div className="flex items-center justify-between">
+        <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+          Speaking Buddies ({friends.length})
+        </h4>
+        <span className="text-xs text-emerald-400 font-bold">{onlineCount} Online Now</span>
+      </div>
 
-      {/* Friends list */}
+      {/* Buddy cards */}
       <div className="space-y-2.5">
-        {friends.length === 0 ? (
-          <div className="text-center pt-10">
-            <p className="text-sm font-semibold text-[#94A3B8]">No friends added yet</p>
-            <p className="text-xs text-[#64748B] mt-1">Share your code '{user.friendCode}' with someone or add them above!</p>
-          </div>
-        ) : (
-          friends.map(friend => {
-            const avatarColor = AVATAR_GRADIENTS[friend.avatarColorIndex % AVATAR_GRADIENTS.length];
-            return (
-              <div key={friend.id} className="p-4 rounded-2xl bg-[#13171F] border border-[#262E3E] flex items-center justify-between">
-                <div className="flex items-center gap-3.5 min-w-0">
-                  {/* Avatar */}
-                  <div className="relative shrink-0">
-                    <div
-                      className="w-11 h-11 rounded-full flex items-center justify-center text-lg font-bold border"
-                      style={{ backgroundColor: `${avatarColor}33`, color: avatarColor, borderColor: `${avatarColor}80` }}
-                    >
-                      {friend.name.charAt(0).toUpperCase()}
-                    </div>
-                    {friend.isOnline && (
-                      <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#13171F]" />
-                    )}
+        {friends.map(friend => {
+          const avatarColor = AVATAR_GRADIENTS[friend.avatarColorIndex % AVATAR_GRADIENTS.length];
+          return (
+            <div
+              key={friend.id}
+              className="p-3.5 rounded-2xl bg-[#161b22] border border-[#262E3E] flex items-center justify-between"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                {/* Avatar */}
+                <div className="relative shrink-0">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
+                    style={{ backgroundColor: avatarColor }}
+                  >
+                    {friend.name.charAt(0)}
                   </div>
-                  {/* Info */}
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h5 className="text-sm font-semibold text-[#F8FAFC] truncate">{friend.name}</h5>
-                      <span className="px-1.5 py-0.5 rounded bg-[#1B212D] text-[10px] text-[#64748B]">{friend.friendCode}</span>
-                    </div>
-                    <p className="text-xs text-[#94A3B8] mt-0.5 truncate">{friend.lastMessage}</p>
-                  </div>
+                  {friend.isOnline && (
+                    <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#161b22]" />
+                  )}
                 </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-2.5 shrink-0 ml-2">
-                  <button
-                    onClick={() => {
-                      if (user.isGuest) onOpenAuth();
-                      else if (!user.isSubscribed) onOpenSubscription();
-                      else onOpenChat(friend);
-                    }}
-                    className="w-10 h-10 rounded-full bg-[#1B212D] border border-[#262E3E] flex items-center justify-center"
-                  >
-                    {user.isSubscribed ? (
-                      <MessageSquare className="w-4 h-4 text-[#A78BFA]" />
-                    ) : (
-                      <Lock className="w-4 h-4 text-[#FCD34D]" />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (user.isGuest) onOpenAuth();
-                      else if (!user.isSubscribed) onOpenSubscription();
-                      else onDirectCallFriend(friend);
-                    }}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center border ${
-                      user.isSubscribed
-                        ? 'bg-emerald-500 border-[#34D399]'
-                        : 'bg-[#241D0E] border-[#F59E0B]'
-                    }`}
-                  >
-                    {user.isSubscribed ? (
-                      <Phone className="w-4 h-4 text-black" />
-                    ) : (
-                      <Diamond className="w-4 h-4 text-[#FCD34D]" />
-                    )}
-                  </button>
+                {/* Info */}
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h5 className="text-sm font-bold text-white">{friend.name}</h5>
+                    <span className="text-xs text-amber-500 font-bold flex items-center">
+                      <Flame className="w-3.5 h-3.5" /> {friend.streak}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
+                    <span>{friend.level}</span>
+                    <span className="text-slate-600">•</span>
+                    <span>{friend.location}</span>
+                  </div>
                 </div>
               </div>
-            );
-          })
-        )}
+
+              {/* Actions */}
+              <div className="flex items-center gap-2 shrink-0 ml-2">
+                <button
+                  onClick={() => onOpenChat(friend)}
+                  className="p-2.5 rounded-xl bg-[#1B212D] text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
+                  title="Direct Message"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => onDirectCallFriend(friend)}
+                  className="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold flex items-center gap-1.5 transition-all"
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  Call
+                </button>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

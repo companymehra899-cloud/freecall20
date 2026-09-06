@@ -4,31 +4,52 @@ import { AVATAR_GRADIENTS, MAX_FREE_CALL_SECONDS } from './types';
 
 const INITIAL_FRIENDS: Friend[] = [
   {
-    id: 'f_1',
+    id: '1042',
     friendCode: 'SPK-4821',
-    name: 'Aarav Sharma (Advanced)',
+    name: 'Aarav Sharma',
     isOnline: true,
     avatarColorIndex: 1,
     lastMessage: "Hey! Let's practice IELTS speaking topics today?",
     lastMessageTime: '12:30 PM',
+    level: 'Intermediate',
+    streak: 7,
+    location: 'Mumbai, IN',
   },
   {
-    id: 'f_2',
+    id: '3910',
     friendCode: 'SPK-8923',
-    name: 'Priya Patel (Intermediate)',
+    name: 'Priya Patel',
     isOnline: true,
     avatarColorIndex: 2,
     lastMessage: 'Thanks for the great conversation earlier!',
     lastMessageTime: 'Yesterday',
+    level: 'Advanced',
+    streak: 14,
+    location: 'Ahmedabad, IN',
   },
   {
-    id: 'f_3',
+    id: '5582',
     friendCode: 'SPK-3109',
-    name: 'Rohan Verma (Beginner)',
+    name: 'Vikram Singh',
     isOnline: false,
-    avatarColorIndex: 3,
+    avatarColorIndex: 0,
     lastMessage: 'Will be online at 8 PM for mock interview.',
     lastMessageTime: '2 days ago',
+    level: 'Beginner',
+    streak: 4,
+    location: 'Jaipur, IN',
+  },
+  {
+    id: '8821',
+    friendCode: 'SPK-8821',
+    name: 'Anaya Roy',
+    isOnline: false,
+    avatarColorIndex: 4,
+    lastMessage: "Let's practice tomorrow!",
+    lastMessageTime: '3 days ago',
+    level: 'Intermediate',
+    streak: 12,
+    location: 'Kolkata, IN',
   },
 ];
 
@@ -54,7 +75,7 @@ function createGuestUser(): UserAccount {
 
 function seedChats(userId: string): Record<string, ChatMessage[]> {
   return {
-    f_1: [
+    '1042': [
       { id: 'm1', senderId: 'f_1', senderName: 'Aarav Sharma', text: 'Hi there! Are you free for a 10-minute speaking drill?', timeFormatted: '11:45 AM' },
       { id: 'm2', senderId: userId, senderName: 'Me', text: "Yes, sure! Let's discuss business idioms and accent clarity.", timeFormatted: '12:15 PM' },
       { id: 'm3', senderId: 'f_1', senderName: 'Aarav Sharma', text: "Hey! Let's practice IELTS speaking topics today?", timeFormatted: '12:30 PM' },
@@ -317,6 +338,9 @@ export function useAppStore(): AppStore {
       avatarColorIndex: Math.floor(Math.random() * 5),
       lastMessage: 'Added to Friends! Tap to start direct call or chat.',
       lastMessageTime: 'Just now',
+      level: 'Intermediate',
+      streak: 1,
+      location: 'India',
     };
     setFriends(prev => [newFriend, ...prev]);
     addLog(`Friend added: ${newFriend.name}`, 'info');
