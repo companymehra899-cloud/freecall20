@@ -5,6 +5,7 @@ interface Props {
   statusMessage: string;
   onStartNextCall: () => void;
   onOpenSubscription: () => void;
+  onDone: () => void;
 }
 
 export default function CallEndedScreen({
@@ -12,9 +13,10 @@ export default function CallEndedScreen({
   statusMessage,
   onStartNextCall,
   onOpenSubscription,
+  onDone,
 }: Props) {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-6 text-center bg-[#090B0E]">
+    <div className="flex-1 min-h-0 flex flex-col items-center justify-center px-6 text-center">
       <div
         className={`w-16 h-16 rounded-full flex items-center justify-center ${
           isLimitReached ? 'bg-[#241D0E] border border-[#F59E0B]' : 'bg-[#1B212D] border border-[#262E3E]'
@@ -27,29 +29,39 @@ export default function CallEndedScreen({
         )}
       </div>
 
-      <h3 className="text-lg font-bold text-[#F8FAFC] mt-4">{statusMessage}</h3>
+      <h2 className="text-lg font-bold text-[#F8FAFC] mt-4 px-2">{statusMessage}</h2>
 
       {isLimitReached ? (
         <>
-          <p className="text-xs text-[#94A3B8] mt-2 max-w-[300px] leading-relaxed">
-            Free users get 10 mins per person/call. Calling is 100% UNLIMITED — you can immediately start
-            another call with any partner, or upgrade to 5-Month Pass for non-stop conversations!
+          <p className="text-xs text-[#94A3B8] mt-2 max-w-[300px] leading-5">
+            Free users get 10 minutes per call. You can start another call now, or upgrade for unlimited duration.
           </p>
           <button
+            type="button"
             onClick={onStartNextCall}
-            className="w-full max-w-[300px] mt-5 py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold transition-all"
+            className="w-full max-w-[300px] mt-5 h-12 rounded-2xl bg-emerald-500 text-black text-sm font-bold"
           >
-            🎙️ Start Next Free Call
+            Start next free call
           </button>
           <button
+            type="button"
             onClick={onOpenSubscription}
-            className="w-full max-w-[300px] mt-2.5 py-3.5 rounded-2xl bg-[#1B212D] border border-[#F59E0B] text-[#FCD34D] text-xs font-semibold transition-all"
+            className="w-full max-w-[300px] mt-2.5 h-12 rounded-2xl bg-[#1B212D] border border-[#F59E0B] text-[#FCD34D] text-xs font-semibold"
           >
-            👑 Remove 20-Min Limit (₹100 / 5 Months)
+            Remove 10-min limit · ₹100 / 5 months
           </button>
         </>
       ) : (
-        <p className="text-xs text-[#64748B] mt-1.5">Returning to main screen...</p>
+        <>
+          <p className="text-xs text-[#64748B] mt-1.5">Ready for the next practice session.</p>
+          <button
+            type="button"
+            onClick={onDone}
+            className="w-full max-w-[300px] mt-5 h-12 rounded-2xl bg-emerald-500 text-black text-sm font-bold"
+          >
+            Back to home
+          </button>
+        </>
       )}
     </div>
   );

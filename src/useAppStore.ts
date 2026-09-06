@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import type { UserAccount, Friend, ChatMessage, CallState, AppTab } from './types';
-import { AVATAR_GRADIENTS, MAX_FREE_CALL_SECONDS } from './types';
+import { MAX_FREE_CALL_SECONDS } from './types';
 
 const INITIAL_FRIENDS: Friend[] = [
   {
@@ -76,9 +76,9 @@ function createGuestUser(): UserAccount {
 function seedChats(userId: string): Record<string, ChatMessage[]> {
   return {
     '1042': [
-      { id: 'm1', senderId: 'f_1', senderName: 'Aarav Sharma', text: 'Hi there! Are you free for a 10-minute speaking drill?', timeFormatted: '11:45 AM' },
+      { id: 'm1', senderId: '1042', senderName: 'Aarav Sharma', text: 'Hi there! Are you free for a 10-minute speaking drill?', timeFormatted: '11:45 AM' },
       { id: 'm2', senderId: userId, senderName: 'Me', text: "Yes, sure! Let's discuss business idioms and accent clarity.", timeFormatted: '12:15 PM' },
-      { id: 'm3', senderId: 'f_1', senderName: 'Aarav Sharma', text: "Hey! Let's practice IELTS speaking topics today?", timeFormatted: '12:30 PM' },
+      { id: 'm3', senderId: '1042', senderName: 'Aarav Sharma', text: "Hey! Let's practice IELTS speaking topics today?", timeFormatted: '12:30 PM' },
     ],
   };
 }
@@ -102,7 +102,6 @@ export interface AppStore {
   isBillingProcessing: boolean;
   billingMessage: string | null;
   logs: Array<{ time: string; action: string; type: 'write' | 'read' | 'delete' | 'info' }>;
-  // actions
   selectTab: (tab: AppTab) => void;
   openAuthDialog: () => void;
   closeAuthDialog: () => void;
@@ -122,6 +121,13 @@ export interface AppStore {
   launchGooglePlayPurchase: () => void;
   clearBillingMessage: () => void;
   clearLogs: () => void;
+  dismissCallEnded: () => void;
+}
+
+function formatDuration(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
 
 export function useAppStore(): AppStore {
@@ -143,7 +149,7 @@ export function useAppStore(): AppStore {
   const [isBillingProcessing, setIsBillingProcessing] = useState(false);
   const [billingMessage, setBillingMessage] = useState<string | null>(null);
   const [logs, setLogs] = useState<Array<{ time: string; action: string; type: 'write' | 'read' | 'delete' | 'info' }>>([
-    { time: '09:14:02.120', action: 'App initialized with Zero-Cost Firestore P2P Signaling', type: 'info' },
+    { time: '09:14:02.120', action: 'App initialized', type: 'info' },
   ]);
 
   const chatStoreRef = useRef<Record<string, ChatMessage[]>>({});
@@ -152,12 +158,16 @@ export function useAppStore(): AppStore {
   const connectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const replyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const callSecondsRef = useRef(0);
+  const subscribedRef = useRef(false);
 
-  // Seed chats once on mount
   useEffect(() => {
     chatStoreRef.current = seedChats(user.userId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    subscribedRef.current = user.isSubscribed;
+  }, [user.isSubscribed]);
 
   const addLog = useCallback((action: string, type: 'write' | 'read' | 'delete' | 'info') => {
     const now = new Date();
@@ -165,48 +175,71 @@ export function useAppStore(): AppStore {
     setLogs(prev => [{ time: timeStr, action, type }, ...prev.slice(0, 19)]);
   }, []);
 
-  const startCallTimer = useCallback((isSubscribed: boolean) => {
+  const clearTimers = useCallback(() => {
+    if (searchTimerRef.current) {
+      clearInterval(searchTimerRef.current);
+      searchTimerRef.current = null;
+    }
+    if (callTimerRef.current) {
+      clearInterval(callTimerRef.current);
+      callTimerRef.current = null;
+    }
+    if (connectTimeoutRef.current) {
+      clearTimeout(connectTimeoutRef.current);
+      connectTimeoutRef.current = null;
+    }
+    if (resetTimeoutRef.current) {
+      clearTimeout(resetTimeoutRef.current);
+      resetTimeoutRef.current = null;
+    }
+  }, []);
+
+  const startCallTimer = useCallback(() => {
     if (callTimerRef.current) clearInterval(callTimerRef.current);
-    let seconds = 0;
+    callSecondsRef.current = 0;
     setCallDurationSeconds(0);
     setCallDurationFormatted('00:00');
     setIsFreeLimitReached(false);
 
     callTimerRef.current = setInterval(() => {
-      seconds++;
+      callSecondsRef.current += 1;
+      const seconds = callSecondsRef.current;
       setCallDurationSeconds(seconds);
-      const mins = Math.floor(seconds / 60);
-      const secs = seconds % 60;
-      setCallDurationFormatted(`${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`);
+      setCallDurationFormatted(formatDuration(seconds));
 
-      if (!isSubscribed && seconds >= MAX_FREE_CALL_SECONDS) {
+      if (!subscribedRef.current && seconds >= MAX_FREE_CALL_SECONDS) {
         if (callTimerRef.current) clearInterval(callTimerRef.current);
         callTimerRef.current = null;
         setIsFreeLimitReached(true);
         setCallState('ENDED');
-        setStatusMessage('Free 20-Min Call Limit Reached');
-        addLog('⏱️ Free 20-Min Call Limit Reached. Call automatically disconnected.', 'info');
-        // Update call stats
+        setStatusMessage('Free 10-min call limit reached');
+        addLog('Free 10-min call limit reached. Call disconnected.', 'info');
         setUser(prev => ({
           ...prev,
           totalCallsMade: prev.totalCallsMade + 1,
           totalTalkTimeSeconds: prev.totalTalkTimeSeconds + seconds,
         }));
       }
-    }, 1000) as unknown as ReturnType<typeof setInterval>;
+    }, 1000);
   }, [addLog]);
 
-  const resetAfterDelay = useCallback(() => {
-    resetTimeoutRef.current = setTimeout(() => {
-      setCallState('IDLE');
-      setCallDurationFormatted('00:00');
-      setCallDurationSeconds(0);
-      setPartnerLabel('Anonymous Partner');
-      setStatusMessage('');
-    }, 2000);
+  const dismissCallEnded = useCallback(() => {
+    if (resetTimeoutRef.current) {
+      clearTimeout(resetTimeoutRef.current);
+      resetTimeoutRef.current = null;
+    }
+    setCallState('IDLE');
+    setCallDurationFormatted('00:00');
+    setCallDurationSeconds(0);
+    callSecondsRef.current = 0;
+    setPartnerLabel('Anonymous Partner');
+    setStatusMessage('');
+    setIsFreeLimitReached(false);
+    setSearchingSeconds(0);
   }, []);
 
   const findPartner = useCallback(() => {
+    clearTimers();
     setCallState('SEARCHING');
     setSearchingSeconds(0);
     setIsMuted(false);
@@ -214,12 +247,11 @@ export function useAppStore(): AppStore {
     setIsFreeLimitReached(false);
     setPartnerLabel('Anonymous Partner');
     setStatusMessage('Matching you with an English learner...');
-    addLog('Matchmaking request: generated local ephemeral ID', 'info');
-    addLog('CREATE /waiting_room/anon_user {status: "searching"}', 'write');
+    addLog('Matchmaking request started', 'info');
 
     let count = 0;
     searchTimerRef.current = setInterval(() => {
-      count++;
+      count += 1;
       setSearchingSeconds(count);
 
       if (count === 3) {
@@ -230,52 +262,50 @@ export function useAppStore(): AppStore {
         const chosen = partners[Math.floor(Math.random() * partners.length)];
         const randId = Math.floor(1000 + Math.random() * 9000).toString(16).toUpperCase();
         setPartnerLabel(`Learner #${randId}`);
-        addLog(`MATCH FOUND with learner: ${chosen} (#${randId})`, 'info');
-        addLog('CREATE /rooms/room_9941 {callerId, calleeId, offer}', 'write');
+        addLog(`Match found: ${chosen}`, 'info');
 
         connectTimeoutRef.current = setTimeout(() => {
           setCallState('IN_CALL');
-          addLog('STUN Binding Success -> WebRTC Audio: CONNECTED', 'info');
-          addLog('⚡ PURGE /waiting_room/anon_user (0 Firestore Storage)', 'delete');
-          addLog('⚡ PURGE /rooms/room_9941 (Signaling Docs Cleaned)', 'delete');
-          addLog('🔒 Firestore snapshot listeners detached (0 active reads)', 'info');
-          startCallTimer(user.isSubscribed);
+          addLog('P2P audio connected', 'info');
+          startCallTimer();
         }, 1200);
       }
-    }, 1000) as unknown as ReturnType<typeof setInterval>;
-  }, [addLog, startCallTimer, user.isSubscribed]);
+    }, 1000);
+  }, [addLog, startCallTimer, clearTimers]);
 
   const startDirectCallWithFriend = useCallback((friend: Friend) => {
+    clearTimers();
     setPartnerLabel(friend.name);
     setCallState('CONNECTING');
     setIsMuted(false);
     setIsSpeakerOn(true);
     setIsFreeLimitReached(false);
-    setStatusMessage('Connecting to live call...');
-    addLog(`Direct Call ringing peer: ${friend.name}`, 'write');
+    setStatusMessage(`Connecting to ${friend.name}...`);
+    addLog(`Direct call: ${friend.name}`, 'write');
 
     connectTimeoutRef.current = setTimeout(() => {
       setCallState('IN_CALL');
-      addLog(`P2P Audio Connected with friend ${friend.name}`, 'info');
-      startCallTimer(user.isSubscribed);
+      addLog(`P2P audio connected with ${friend.name}`, 'info');
+      startCallTimer();
     }, 1500);
-  }, [addLog, startCallTimer, user.isSubscribed]);
+  }, [addLog, startCallTimer, clearTimers]);
 
   const cancelSearch = useCallback(() => {
-    if (searchTimerRef.current) clearInterval(searchTimerRef.current);
-    searchTimerRef.current = null;
-    addLog('DELETE /waiting_room/anon_user (search cancelled)', 'delete');
+    clearTimers();
     setCallState('IDLE');
     setSearchingSeconds(0);
     setPartnerLabel('Anonymous Partner');
     setStatusMessage('');
-  }, [addLog]);
+    addLog('Search cancelled', 'delete');
+  }, [addLog, clearTimers]);
 
   const endCall = useCallback(() => {
-    if (callTimerRef.current) clearInterval(callTimerRef.current);
-    callTimerRef.current = null;
-    const talkSeconds = callDurationSeconds;
-    addLog('PeerConnection closed. Audio hardware released.', 'info');
+    if (callTimerRef.current) {
+      clearInterval(callTimerRef.current);
+      callTimerRef.current = null;
+    }
+    const talkSeconds = callSecondsRef.current;
+    addLog('Call ended', 'info');
     if (talkSeconds > 0) {
       setUser(prev => ({
         ...prev,
@@ -283,10 +313,10 @@ export function useAppStore(): AppStore {
         totalTalkTimeSeconds: prev.totalTalkTimeSeconds + talkSeconds,
       }));
     }
-    setStatusMessage('Call Ended');
+    setStatusMessage('Call completed');
     setCallState('ENDED');
-    resetAfterDelay();
-  }, [addLog, callDurationSeconds, resetAfterDelay]);
+    setIsFreeLimitReached(false);
+  }, [addLog]);
 
   const toggleMute = useCallback(() => setIsMuted(prev => !prev), []);
   const toggleSpeaker = useCallback(() => setIsSpeakerOn(prev => !prev), []);
@@ -301,20 +331,17 @@ export function useAppStore(): AppStore {
       isGuest: false,
     }));
     setShowAuthDialog(false);
-    addLog(`Firebase Auth: signInWithEmailAndPassword() successful for ${cleanEmail}`, 'read');
-    addLog(`Firestore: Initialized secure profile under /Users/${cleanEmail}`, 'write');
+    addLog(`Signed in as ${cleanEmail}`, 'read');
   }, [addLog]);
 
   const logout = useCallback(() => {
     setUser(createGuestUser());
-    addLog('User logged out. Switched to Guest mode.', 'info');
+    setCurrentTab('HOME');
+    addLog('Logged out. Guest mode.', 'info');
   }, [addLog]);
 
   const updateProfileImage = useCallback((uri: string | null) => {
-    setUser(prev => {
-      const updated = { ...prev, profileImageUri: uri };
-      return updated;
-    });
+    setUser(prev => ({ ...prev, profileImageUri: uri }));
     if (uri) {
       try { localStorage.setItem('speakfree_profile_image', uri); } catch { /* quota */ }
     } else {
@@ -323,20 +350,21 @@ export function useAppStore(): AppStore {
   }, []);
 
   const addFriend = useCallback((codeOrName: string) => {
-    const clean = codeOrName.trim().toUpperCase();
+    const clean = codeOrName.trim();
     if (!clean) return;
-    const existing = friends.find(f => f.friendCode.toUpperCase() === clean || f.name.toUpperCase() === clean);
+    const upper = clean.toUpperCase();
+    const existing = friends.find(f => f.friendCode.toUpperCase() === upper || f.name.toUpperCase() === upper);
     if (existing) {
-      setBillingMessage(`${existing.name} is already in your Friend list!`);
+      setBillingMessage(`${existing.name} is already in your friends list.`);
       return;
     }
     const newFriend: Friend = {
       id: crypto.randomUUID(),
-      friendCode: clean.startsWith('SPK-') ? clean : `SPK-${Math.floor(1000 + Math.random() * 9000)}`,
-      name: clean.startsWith('SPK-') ? `Learner #${clean.replace('SPK-', '')}` : codeOrName.trim(),
+      friendCode: upper.startsWith('SPK-') ? upper : `SPK-${Math.floor(1000 + Math.random() * 9000)}`,
+      name: upper.startsWith('SPK-') ? `Learner #${upper.replace('SPK-', '')}` : clean,
       isOnline: true,
       avatarColorIndex: Math.floor(Math.random() * 5),
-      lastMessage: 'Added to Friends! Tap to start direct call or chat.',
+      lastMessage: 'Added to friends. Tap to chat or call.',
       lastMessageTime: 'Just now',
       level: 'Intermediate',
       streak: 1,
@@ -371,20 +399,18 @@ export function useAppStore(): AppStore {
     const list = chatStoreRef.current[friend.id] ?? [];
     chatStoreRef.current[friend.id] = [...list, msg];
     setActiveChatMessages(prev => [...prev, msg]);
-
-    // Update friend last message
     setFriends(prev => prev.map(f => f.id === friend.id ? { ...f, lastMessage: text.trim(), lastMessageTime: timeStr } : f));
 
-    // Simulated reply
+    if (replyTimeoutRef.current) clearTimeout(replyTimeoutRef.current);
     replyTimeoutRef.current = setTimeout(() => {
       const reply: ChatMessage = {
         id: crypto.randomUUID(),
         senderId: friend.id,
         senderName: friend.name,
-        text: "That sounds great! Would you like to do a quick voice call now?",
+        text: 'That sounds great! Would you like to do a quick voice call now?',
         timeFormatted: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
       };
-      chatStoreRef.current[friend.id] = [...chatStoreRef.current[friend.id], reply];
+      chatStoreRef.current[friend.id] = [...(chatStoreRef.current[friend.id] ?? []), reply];
       setActiveChatMessages(prev => [...prev, reply]);
     }, 1200);
   }, [activeChatFriend, user.userId, user.displayName]);
@@ -396,11 +422,10 @@ export function useAppStore(): AppStore {
     }
     setIsBillingProcessing(true);
     setBillingMessage(null);
-    addLog('Google Play Billing v7: BillingClient.launchBillingFlow(speakfree_vip_5months)', 'info');
+    addLog('Launching purchase flow', 'info');
 
     setTimeout(() => {
-      const generatedOrderId = `GPA.${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(10000 + Math.random() * 90000)}`;
-      const token = `pbtok_${Math.random().toString(36).substring(2, 12)}_${Date.now()}`;
+      const generatedOrderId = `GPA.${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(1000 + Math.random() * 9000)}`;
       const expiry = new Date();
       expiry.setMonth(expiry.getMonth() + 5);
       const formattedExpiry = expiry.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -412,26 +437,28 @@ export function useAppStore(): AppStore {
         googlePlayOrderId: generatedOrderId,
       }));
       setIsBillingProcessing(false);
-      setStatusMessage('Google Play Purchase Verified! VIP Plan Activated.');
-      addLog(`Google Play: Purchase state PURCHASED (${generatedOrderId})`, 'info');
-      addLog(`BillingClient: acknowledgePurchase() verified token ${token.substring(0, 16)}...`, 'write');
-      addLog(`Firestore: Synced verified Google Play receipt under /Users/${user.email || 'learner'}`, 'write');
+      addLog('VIP plan activated', 'info');
     }, 1200);
-  }, [user.isGuest, user.email, addLog]);
+  }, [user.isGuest, addLog]);
 
   const clearBillingMessage = useCallback(() => setBillingMessage(null), []);
   const clearLogs = useCallback(() => setLogs([]), []);
 
-  // Cleanup on unmount
+  const selectTab = useCallback((tab: AppTab) => {
+    setCurrentTab(tab);
+    if (callState === 'ENDED' || callState === 'ERROR') {
+      setCallState('IDLE');
+      setIsFreeLimitReached(false);
+      setStatusMessage('');
+    }
+  }, [callState]);
+
   useEffect(() => {
     return () => {
-      if (searchTimerRef.current) clearInterval(searchTimerRef.current);
-      if (callTimerRef.current) clearInterval(callTimerRef.current);
-      if (connectTimeoutRef.current) clearTimeout(connectTimeoutRef.current);
-      if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
+      clearTimers();
       if (replyTimeoutRef.current) clearTimeout(replyTimeoutRef.current);
     };
-  }, []);
+  }, [clearTimers]);
 
   return {
     user,
@@ -452,7 +479,7 @@ export function useAppStore(): AppStore {
     isBillingProcessing,
     billingMessage,
     logs,
-    selectTab: setCurrentTab,
+    selectTab,
     openAuthDialog: () => setShowAuthDialog(true),
     closeAuthDialog: () => setShowAuthDialog(false),
     loginWithEmail,
@@ -471,5 +498,6 @@ export function useAppStore(): AppStore {
     launchGooglePlayPurchase,
     clearBillingMessage,
     clearLogs,
+    dismissCallEnded,
   };
 }

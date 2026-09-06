@@ -25,6 +25,10 @@ export default function AuthDialog({ onDismiss, onSubmitAuth }: Props) {
       setErrorMsg('Please fill in all fields');
       return;
     }
+    if (!email.includes('@')) {
+      setErrorMsg('Enter a valid email');
+      return;
+    }
     if (password.length < 6) {
       setErrorMsg('Password must be at least 6 characters');
       return;
@@ -36,33 +40,29 @@ export default function AuthDialog({ onDismiss, onSubmitAuth }: Props) {
 
     setIsLoading(true);
     setErrorMsg('');
-
-    // Simulate auth delay
     setTimeout(() => {
       setIsLoading(false);
       onSubmitAuth(name || 'English Learner', email);
-      onDismiss();
     }, 600);
   };
 
   return (
-    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-[320px] bg-[#13171F] border border-[#262E3E] rounded-3xl p-5 shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-1">
-          <h3 className="text-lg font-bold text-[#F8FAFC]">
-            {step === 'LOGIN' ? 'Login with Email' : 'Create Account'}
-          </h3>
-          <button onClick={onDismiss} className="text-[#64748B] hover:text-white">
+    <div className="absolute inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-[340px] bg-[#13171F] border border-[#262E3E] rounded-3xl p-5">
+        <div className="flex items-start justify-between gap-3 mb-1">
+          <h2 className="text-lg font-bold text-[#F8FAFC] leading-6">
+            {step === 'LOGIN' ? 'Login with email' : 'Create account'}
+          </h2>
+          <button type="button" onClick={onDismiss} className="w-8 h-8 flex items-center justify-center text-[#64748B] shrink-0" aria-label="Close">
             <X className="w-5 h-5" />
           </button>
         </div>
-        <p className="text-xs text-[#94A3B8] mb-4">
-          {step === 'LOGIN' ? 'Enter your credentials to access your account' : 'Sign up to practice English and track your progress'}
+        <p className="text-xs text-[#94A3B8] mb-4 leading-5">
+          {step === 'LOGIN' ? 'Enter your credentials to access your account' : 'Sign up to track progress and unlock VIP'}
         </p>
 
         {errorMsg && (
-          <div className="mb-3 p-3 rounded-xl bg-[#3B1B1B] border border-[#EF4444] text-xs text-[#EF4444] font-medium">
+          <div className="mb-3 p-3 rounded-xl bg-[#3B1B1B] border border-[#EF4444] text-xs text-[#EF4444] font-medium leading-5">
             {errorMsg}
           </div>
         )}
@@ -70,77 +70,79 @@ export default function AuthDialog({ onDismiss, onSubmitAuth }: Props) {
         <div className="space-y-3">
           {step === 'SIGNUP' && (
             <div>
-              <label className="text-[11px] text-[#64748B] block mb-1">Display Name</label>
-              <div className="flex items-center gap-2 bg-[#1B212D] border border-[#262E3E] rounded-xl px-3 py-2.5 focus-within:border-emerald-400">
-                <UserIcon className="w-4 h-4 text-[#64748B]" />
+              <label className="text-[11px] text-[#64748B] block mb-1">Display name</label>
+              <div className="flex items-center gap-2 bg-[#1B212D] border border-[#262E3E] rounded-xl px-3 h-11">
+                <UserIcon className="w-4 h-4 text-[#64748B] shrink-0" />
                 <input
                   type="text"
                   placeholder="e.g. Harish Singh"
                   value={nameInput}
                   onChange={e => { setNameInput(e.target.value); setErrorMsg(''); }}
-                  className="flex-1 bg-transparent text-xs text-[#F8FAFC] placeholder-[#64748B] focus:outline-none"
+                  className="flex-1 min-w-0 bg-transparent text-sm text-[#F8FAFC] placeholder-[#64748B] focus:outline-none"
                 />
               </div>
             </div>
           )}
 
           <div>
-            <label className="text-[11px] text-[#64748B] block mb-1">Email Address</label>
-            <div className="flex items-center gap-2 bg-[#1B212D] border border-[#262E3E] rounded-xl px-3 py-2.5 focus-within:border-emerald-400">
-              <Mail className="w-4 h-4 text-[#64748B]" />
+            <label className="text-[11px] text-[#64748B] block mb-1">Email address</label>
+            <div className="flex items-center gap-2 bg-[#1B212D] border border-[#262E3E] rounded-xl px-3 h-11">
+              <Mail className="w-4 h-4 text-[#64748B] shrink-0" />
               <input
                 type="email"
-                placeholder="yourname@example.com"
+                placeholder="you@example.com"
                 value={emailInput}
                 onChange={e => { setEmailInput(e.target.value); setErrorMsg(''); }}
-                className="flex-1 bg-transparent text-xs text-[#F8FAFC] placeholder-[#64748B] focus:outline-none"
+                className="flex-1 min-w-0 bg-transparent text-sm text-[#F8FAFC] placeholder-[#64748B] focus:outline-none"
               />
             </div>
           </div>
 
           <div>
             <label className="text-[11px] text-[#64748B] block mb-1">Password</label>
-            <div className="flex items-center gap-2 bg-[#1B212D] border border-[#262E3E] rounded-xl px-3 py-2.5 focus-within:border-emerald-400">
-              <Lock className="w-4 h-4 text-[#64748B]" />
+            <div className="flex items-center gap-2 bg-[#1B212D] border border-[#262E3E] rounded-xl px-3 h-11">
+              <Lock className="w-4 h-4 text-[#64748B] shrink-0" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={passwordInput}
                 onChange={e => { setPasswordInput(e.target.value); setErrorMsg(''); }}
-                className="flex-1 bg-transparent text-xs text-[#F8FAFC] placeholder-[#64748B] focus:outline-none"
+                className="flex-1 min-w-0 bg-transparent text-sm text-[#F8FAFC] placeholder-[#64748B] focus:outline-none"
               />
-              <button onClick={() => setShowPassword(!showPassword)} className="text-[#64748B]">
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-[#64748B] shrink-0" aria-label="Toggle password">
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
 
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={isLoading}
-            className="w-full py-3.5 rounded-2xl bg-emerald-500 flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full h-12 rounded-2xl bg-emerald-500 flex items-center justify-center disabled:opacity-50"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 text-black animate-spin" />
             ) : (
-              <span className="text-sm font-bold text-black">{step === 'LOGIN' ? 'Log In' : 'Sign Up'}</span>
+              <span className="text-sm font-bold text-black">{step === 'LOGIN' ? 'Log in' : 'Sign up'}</span>
             )}
           </button>
 
-          <div className="flex items-center justify-center gap-1">
+          <div className="flex items-center justify-center gap-1 flex-wrap">
             <span className="text-xs text-[#64748B]">
               {step === 'LOGIN' ? 'New to SpeakFree?' : 'Already have an account?'}
             </span>
             <button
+              type="button"
               onClick={() => { setStep(step === 'LOGIN' ? 'SIGNUP' : 'LOGIN'); setErrorMsg(''); }}
               className="text-xs font-bold text-[#34D399]"
             >
-              {step === 'LOGIN' ? 'Sign Up' : 'Log In'}
+              {step === 'LOGIN' ? 'Sign up' : 'Log in'}
             </button>
           </div>
 
-          <button onClick={onDismiss} className="w-full text-xs text-[#64748B] hover:text-[#94A3B8] py-1">
-            Continue as Guest without login
+          <button type="button" onClick={onDismiss} className="w-full text-xs text-[#64748B] py-1">
+            Continue as guest
           </button>
         </div>
       </div>

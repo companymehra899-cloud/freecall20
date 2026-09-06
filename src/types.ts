@@ -1,5 +1,3 @@
-// Data models matching the Android app (CallModels.kt & AccountRepository.kt)
-
 export type CallState = 'IDLE' | 'SEARCHING' | 'CONNECTING' | 'IN_CALL' | 'ENDED' | 'ERROR';
 export type AppTab = 'HOME' | 'FRIENDS' | 'SUBSCRIPTION' | 'PROFILE';
 export type AuthStep = 'LOGIN' | 'SIGNUP';
@@ -43,11 +41,11 @@ export interface ChatMessage {
 }
 
 export const AVATAR_GRADIENTS = [
-  '#3B82F6', // Blue
-  '#10B981', // Emerald
-  '#8B5CF6', // Purple
-  '#F59E0B', // Amber
-  '#EC4899', // Pink
+  '#3B82F6',
+  '#10B981',
+  '#8B5CF6',
+  '#F59E0B',
+  '#EC4899',
 ];
 
-export const MAX_FREE_CALL_SECONDS = 600; // 10 minutes
+export const MAX_FREE_CALL_SECONDS = 600;
