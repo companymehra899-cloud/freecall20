@@ -20,7 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Diamond
 import androidx.compose.material.icons.filled.FlashOn
@@ -316,7 +316,7 @@ fun SubscriptionScreen(
             )
 
             BenefitRow(
-                icon = Icons.Default.Chat,
+                icon = Icons.AutoMirrored.Filled.Chat,
                 iconColor = PurpleLight,
                 title = "Direct Friend Calling & Chat",
                 description = "Directly call and text message favorite study buddies anytime."

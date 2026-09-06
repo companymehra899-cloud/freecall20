@@ -40,12 +40,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeDown
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.CallEnd
 import androidx.compose.material.icons.filled.Diamond
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MicOff
-import androidx.compose.material.icons.filled.VolumeDown
-import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material.icons.outlined.GraphicEq
 import androidx.compose.material.icons.outlined.RecordVoiceOver
 import androidx.compose.material3.Icon
@@ -654,7 +654,7 @@ fun CallingScreen(
             ) {
                 // Speakerphone Toggle
                 CallControlButton(
-                    icon = if (isSpeakerOn) Icons.Default.VolumeUp else Icons.Default.VolumeDown,
+                    icon = if (isSpeakerOn) Icons.AutoMirrored.Filled.VolumeUp else Icons.AutoMirrored.Filled.VolumeDown,
                     isActive = isSpeakerOn,
                     label = if (isSpeakerOn) "Speaker" else "Earpiece",
                     onClick = onToggleSpeaker

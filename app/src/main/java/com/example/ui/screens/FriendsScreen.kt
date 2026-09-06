@@ -21,8 +21,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Diamond
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PersonAdd
@@ -442,7 +442,7 @@ fun FriendCard(
                         .clickable { onOpenChat() }
                 ) {
                     Icon(
-                        imageVector = if (isSubscribed) Icons.Default.Chat else Icons.Outlined.Lock,
+                        imageVector = if (isSubscribed) Icons.AutoMirrored.Filled.Chat else Icons.Outlined.Lock,
                         contentDescription = "Chat",
                         tint = if (isSubscribed) PurpleLight else GoldLight,
                         modifier = Modifier.size(17.dp)

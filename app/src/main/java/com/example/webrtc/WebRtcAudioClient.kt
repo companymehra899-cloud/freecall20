@@ -177,15 +177,15 @@ class WebRtcAudioClient(
         }
 
         peerConnection?.createOffer(object : SimpleSdpObserver() {
-            override fun onCreateSuccess(desc: SessionDescription?) {
-                desc?.let {
+            override fun onCreateSuccess(p0: SessionDescription?) {
+                p0?.let {
                     peerConnection?.setLocalDescription(SimpleSdpObserver(), it)
                     listener.onLocalDescriptionCreated(it)
                 }
             }
 
-            override fun onCreateFailure(error: String?) {
-                listener.onError("Failed to create WebRTC offer: $error")
+            override fun onCreateFailure(p0: String?) {
+                listener.onError("Failed to create WebRTC offer: $p0")
             }
         }, sdpConstraints)
     }
@@ -202,21 +202,21 @@ class WebRtcAudioClient(
                 }
 
                 peerConnection?.createAnswer(object : SimpleSdpObserver() {
-                    override fun onCreateSuccess(desc: SessionDescription?) {
-                        desc?.let {
+                    override fun onCreateSuccess(p0: SessionDescription?) {
+                        p0?.let {
                             peerConnection?.setLocalDescription(SimpleSdpObserver(), it)
                             listener.onLocalDescriptionCreated(it)
                         }
                     }
 
-                    override fun onCreateFailure(error: String?) {
-                        listener.onError("Failed to create WebRTC answer: $error")
+                    override fun onCreateFailure(p0: String?) {
+                        listener.onError("Failed to create WebRTC answer: $p0")
                     }
                 }, sdpConstraints)
             }
 
-            override fun onSetFailure(error: String?) {
-                listener.onError("Failed to set remote offer: $error")
+            override fun onSetFailure(p0: String?) {
+                listener.onError("Failed to set remote offer: $p0")
             }
         }, remoteDesc)
     }
@@ -226,8 +226,8 @@ class WebRtcAudioClient(
      */
     fun setRemoteAnswer(remoteDesc: SessionDescription) {
         peerConnection?.setRemoteDescription(object : SimpleSdpObserver() {
-            override fun onSetFailure(error: String?) {
-                listener.onError("Failed to set remote answer: $error")
+            override fun onSetFailure(p0: String?) {
+                listener.onError("Failed to set remote answer: $p0")
             }
         }, remoteDesc)
     }
