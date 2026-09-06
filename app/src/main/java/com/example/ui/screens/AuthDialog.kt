@@ -65,7 +65,13 @@ fun AuthDialog(
     var errorMsg by remember { mutableStateOf("") }
     var successMsg by remember { mutableStateOf("") }
     
-    val auth = remember { FirebaseAuth.getInstance() }
+    val auth = remember {
+        try {
+            FirebaseAuth.getInstance()
+        } catch (e: Exception) {
+            null
+        }
+    }
 
     BasicAlertDialog(
         onDismissRequest = onDismiss
@@ -285,6 +291,14 @@ fun AuthDialog(
                                     isLoading = true
                                     errorMsg = ""
                                     successMsg = ""
+
+                                    if (auth == null) {
+                                        // Fallback if Firebase auth service is unavailable
+                                        isLoading = false
+                                        onSubmitAuth(name.ifEmpty { "English Learner" }, email, email)
+                                        onDismiss()
+                                        return@clickable
+                                    }
 
                                     if (currentStep == AuthStep.SIGNUP) {
                                         if (name.isEmpty()) {

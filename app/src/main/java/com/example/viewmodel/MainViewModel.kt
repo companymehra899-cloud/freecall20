@@ -129,20 +129,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val cleanEmail = email.trim()
         repository.registerOrLogin(name, cleanEmail, cleanEmail)
         
-        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
-        val userMap = hashMapOf(
-            "uid" to cleanEmail,
-            "name" to name.trim().ifEmpty { "English Learner" },
-            "email" to cleanEmail,
-            "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
-        )
-        db.collection("Users").document(cleanEmail).set(userMap)
-            .addOnSuccessListener {
-                android.util.Log.d("MainViewModel", "User written to Firestore")
-            }
-            .addOnFailureListener { e ->
-                android.util.Log.e("MainViewModel", "Error writing user to Firestore", e)
-            }
+        try {
+            val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+            val userMap = hashMapOf(
+                "uid" to cleanEmail,
+                "name" to name.trim().ifEmpty { "English Learner" },
+                "email" to cleanEmail,
+                "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+            )
+            db.collection("Users").document(cleanEmail).set(userMap)
+                .addOnSuccessListener {
+                    android.util.Log.d("MainViewModel", "User written to Firestore")
+                }
+                .addOnFailureListener { e ->
+                    android.util.Log.e("MainViewModel", "Error writing user to Firestore", e)
+                }
+        } catch (e: Exception) {
+            android.util.Log.e("MainViewModel", "Firestore user sync skipped/failed", e)
+        }
         
         _showAuthDialog.value = false
     }
