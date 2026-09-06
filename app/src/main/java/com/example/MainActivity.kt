@@ -311,20 +311,24 @@ fun SpeakFreeApp(viewModel: MainViewModel) {
             }
 
             CallState.ENDED, CallState.ERROR -> {
-                CallEndedScreen(
-                    isLimitReached = isFreeLimitReached,
-                    statusMessage = if (state == CallState.ERROR) statusMessage else if (isFreeLimitReached) "10-Minute Free Call Limit Reached" else "Call Completed",
-                    onStartNextCall = {
-                        if (hasAudioPermission) {
-                            viewModel.findPartner()
-                        } else {
-                            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                if (state == CallState.ERROR && !isFreeLimitReached) {
+                    Box(modifier = Modifier.fillMaxSize())
+                } else {
+                    CallEndedScreen(
+                        isLimitReached = isFreeLimitReached,
+                        statusMessage = if (state == CallState.ERROR) statusMessage else "Free 10-min call limit reached",
+                        onStartNextCall = {
+                            if (hasAudioPermission) {
+                                viewModel.findPartner()
+                            } else {
+                                permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                            }
+                        },
+                        onOpenSubscription = {
+                            viewModel.selectTab(AppTab.SUBSCRIPTION)
                         }
-                    },
-                    onOpenSubscription = {
-                        viewModel.selectTab(AppTab.SUBSCRIPTION)
-                    }
-                )
+                    )
+                }
             }
         }
     }
@@ -818,7 +822,7 @@ fun CallEndedScreen(
                     .padding(vertical = 14.dp)
             ) {
                 Text(
-                    text = "👑 Remove 20-Min Limit (₹100 / 5 Months)",
+                    text = "Remove 10-min limit · ₹100 / 5 months",
                     color = GoldLight,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold

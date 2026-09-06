@@ -107,6 +107,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun selectTab(tab: AppTab) {
         _currentTab.value = tab
+        if (_callState.value == CallState.ENDED || _callState.value == CallState.ERROR) {
+            resetToIdle()
+        }
     }
 
     fun openAuthDialog() {
@@ -364,13 +367,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         if (isLimitReached) {
             _isFreeLimitReached.value = true
-            _statusMessage.value = "Free 20-Min Call Limit Reached"
+            _statusMessage.value = "Free 10-min call limit reached"
+            _callState.value = CallState.ENDED
         } else {
-            _statusMessage.value = "Call Ended"
+            resetToIdle()
         }
-
-        _callState.value = CallState.ENDED
-        resetAfterDelay()
     }
 
     fun toggleMute() {
@@ -432,14 +433,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         timerJob = null
     }
 
+    private fun resetToIdle() {
+        _callState.value = CallState.IDLE
+        _callDurationFormatted.value = "00:00"
+        _callDurationSeconds.value = 0L
+        _partnerLabel.value = "Anonymous Partner"
+        _statusMessage.value = ""
+        _isFreeLimitReached.value = false
+        _searchingSeconds.value = 0
+    }
+
     private fun resetAfterDelay() {
         viewModelScope.launch {
             delay(2000)
-            _callState.value = CallState.IDLE
-            _callDurationFormatted.value = "00:00"
-            _callDurationSeconds.value = 0L
-            _partnerLabel.value = "Anonymous Partner"
-            _statusMessage.value = ""
+            resetToIdle()
         }
     }
 
