@@ -125,55 +125,6 @@ fun FriendsScreen(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Guest Warning Banner (If not logged in)
-        if (user.isGuest) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(DarkSurfaceElevated)
-                    .border(1.dp, PurpleAccent.copy(alpha = 0.5f), RoundedCornerShape(14.dp))
-                    .padding(14.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Login Required for Friends",
-                            color = PurpleLight,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Log in to add friends, save contacts, and make direct calls.",
-                            color = TextSecondary,
-                            fontSize = 11.sp,
-                            modifier = Modifier.padding(top = 2.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(PurpleAccent)
-                            .clickable { onOpenAuth() }
-                            .padding(horizontal = 12.dp, vertical = 8.dp)
-                    ) {
-                        Text(
-                            text = "Login",
-                            color = Color.White,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(14.dp))
-        }
-
         // Add Friend Input Bar
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -232,58 +183,6 @@ fun FriendsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // VIP Plan status / banner
-        if (!user.isSubscribed) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(GoldSurface)
-                    .border(1.dp, GoldAccent.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
-                    .clickable { onOpenSubscription() }
-                    .padding(horizontal = 14.dp, vertical = 10.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Diamond,
-                            contentDescription = "VIP",
-                            tint = GoldLight,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Column {
-                            Text(
-                                text = "Unlock Direct Calling & Text Chat",
-                                color = GoldLight,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "₹100 for 5 Months unlimited plan",
-                                color = TextSecondary,
-                                fontSize = 11.sp
-                            )
-                        }
-                    }
-                    Text(
-                        text = "Upgrade ➔",
-                        color = GoldLight,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(14.dp))
-        }
-
         // Friends List
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -317,26 +216,8 @@ fun FriendsScreen(
                 FriendCard(
                     friend = friend,
                     avatarColor = avatarGradients[friend.avatarColorIndex % avatarGradients.size],
-                    isSubscribed = user.isSubscribed,
-                    isGuest = user.isGuest,
-                    onDirectCall = {
-                        if (user.isGuest) {
-                            onOpenAuth()
-                        } else if (!user.isSubscribed) {
-                            onOpenSubscription()
-                        } else {
-                            onDirectCallFriend(friend)
-                        }
-                    },
-                    onOpenChat = {
-                        if (user.isGuest) {
-                            onOpenAuth()
-                        } else if (!user.isSubscribed) {
-                            onOpenSubscription()
-                        } else {
-                            onOpenChat(friend)
-                        }
-                    }
+                    onDirectCall = { onDirectCallFriend(friend) },
+                    onOpenChat = { onOpenChat(friend) }
                 )
             }
         }
@@ -347,8 +228,6 @@ fun FriendsScreen(
 fun FriendCard(
     friend: Friend,
     avatarColor: Color,
-    isSubscribed: Boolean,
-    isGuest: Boolean,
     onDirectCall: () -> Unit,
     onOpenChat: () -> Unit
 ) {
@@ -408,22 +287,34 @@ fun FriendCard(
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
                         )
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(DarkSurfaceElevated)
-                                .padding(horizontal = 4.dp, vertical = 1.dp)
-                        ) {
-                            Text(text = friend.friendCode, color = TextMuted, fontSize = 10.sp)
-                        }
+                        Text(
+                            text = "🔥 ${friend.streak}",
+                            color = GoldLight,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
-                    Text(
-                        text = friend.lastMessage,
-                        color = TextSecondary,
-                        fontSize = 11.sp,
-                        maxLines = 1,
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier.padding(top = 2.dp)
-                    )
+                    ) {
+                        Text(
+                            text = friend.level,
+                            color = TextSecondary,
+                            fontSize = 11.sp
+                        )
+                        Text(
+                            text = "•",
+                            color = TextMuted,
+                            fontSize = 11.sp
+                        )
+                        Text(
+                            text = friend.location,
+                            color = TextSecondary,
+                            fontSize = 11.sp
+                        )
+                    }
                 }
             }
 
@@ -442,9 +333,9 @@ fun FriendCard(
                         .clickable { onOpenChat() }
                 ) {
                     Icon(
-                        imageVector = if (isSubscribed) Icons.AutoMirrored.Filled.Chat else Icons.Outlined.Lock,
+                        imageVector = Icons.AutoMirrored.Filled.Chat,
                         contentDescription = "Chat",
-                        tint = if (isSubscribed) PurpleLight else GoldLight,
+                        tint = TextSecondary,
                         modifier = Modifier.size(17.dp)
                     )
                 }
@@ -453,18 +344,28 @@ fun FriendCard(
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(38.dp)
-                        .clip(CircleShape)
-                        .background(if (isSubscribed) EmeraldAccent else GoldSurface)
-                        .border(1.dp, if (isSubscribed) EmeraldLight else GoldAccent, CircleShape)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(EmeraldAccent)
                         .clickable { onDirectCall() }
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
                 ) {
-                    Icon(
-                        imageVector = if (isSubscribed) Icons.Default.Phone else Icons.Default.Diamond,
-                        contentDescription = "Direct Call",
-                        tint = if (isSubscribed) Color.Black else GoldLight,
-                        modifier = Modifier.size(18.dp)
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Phone,
+                            contentDescription = "Direct Call",
+                            tint = Color.Black,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Text(
+                            text = "Call",
+                            color = Color.Black,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }

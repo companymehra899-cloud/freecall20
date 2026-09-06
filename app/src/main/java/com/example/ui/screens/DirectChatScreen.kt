@@ -218,89 +218,61 @@ fun DirectChatScreen(
             }
         }
 
-        // Bottom Input or VIP Paywall
-        if (!user.isSubscribed) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(GoldSurface)
-                    .border(1.dp, GoldAccent.copy(alpha = 0.5f))
-                    .clickable { onOpenSubscription() }
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Icon(Icons.Default.Lock, contentDescription = "Locked", tint = GoldLight, modifier = Modifier.size(18.dp))
-                        Text(
-                            text = "Activate VIP Plan (₹100 / 5 Mo) to send messages",
-                            color = GoldLight,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
+        // Bottom Input Bar
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(DarkSurface)
+                .border(1.dp, DarkBorder)
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedTextField(
+                value = textInput,
+                onValueChange = { textInput = it },
+                placeholder = { Text("Type a message...", color = TextMuted, fontSize = 13.sp) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                keyboardActions = KeyboardActions(onSend = {
+                    if (textInput.isNotBlank()) {
+                        onSendMessage(textInput)
+                        textInput = ""
                     }
-                    Text(text = "Unlock ➔", color = GoldLight, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                }
-            }
-        } else {
-            Row(
+                }),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = EmeraldAccent,
+                    unfocusedBorderColor = DarkBorder,
+                    focusedTextColor = TextPrimary,
+                    unfocusedTextColor = TextPrimary,
+                    focusedContainerColor = DarkSurfaceElevated,
+                    unfocusedContainerColor = DarkSurfaceElevated
+                ),
+                shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(DarkSurface)
-                    .border(1.dp, DarkBorder)
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedTextField(
-                    value = textInput,
-                    onValueChange = { textInput = it },
-                    placeholder = { Text("Type a message...", color = TextMuted, fontSize = 13.sp) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                    keyboardActions = KeyboardActions(onSend = {
+                    .weight(1f)
+                    .height(50.dp)
+            )
+
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(EmeraldAccent)
+                    .clickable {
                         if (textInput.isNotBlank()) {
                             onSendMessage(textInput)
                             textInput = ""
                         }
-                    }),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = EmeraldAccent,
-                        unfocusedBorderColor = DarkBorder,
-                        focusedTextColor = TextPrimary,
-                        unfocusedTextColor = TextPrimary,
-                        focusedContainerColor = DarkSurfaceElevated,
-                        unfocusedContainerColor = DarkSurfaceElevated
-                    ),
-                    shape = RoundedCornerShape(20.dp),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(50.dp)
+                    }
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = "Send",
+                    tint = Color.Black,
+                    modifier = Modifier.size(18.dp)
                 )
-
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(CircleShape)
-                        .background(EmeraldAccent)
-                        .clickable {
-                            if (textInput.isNotBlank()) {
-                                onSendMessage(textInput)
-                                textInput = ""
-                            }
-                        }
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.Send,
-                        contentDescription = "Send",
-                        tint = Color.Black,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
             }
         }
     }

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -41,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.Image
 import com.example.R
 import com.example.model.AppTab
@@ -85,18 +87,31 @@ fun AppTopBar(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .clip(CircleShape)
-                        .background(EmeraldAccent)
-                )
+                if (!user.profileImageUri.isNullOrBlank()) {
+                    coil.compose.AsyncImage(
+                        model = user.profileImageUri,
+                        contentDescription = "Profile",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clip(CircleShape)
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .clip(CircleShape)
+                            .background(EmeraldAccent)
+                    )
+                }
                 Text(
-                    text = "Profile",
+                    text = if (user.isGuest) "Profile" else user.displayName,
                     color = TextPrimary,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
-                    maxLines = 1
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.widthIn(max = 100.dp)
                 )
             }
         }

@@ -364,7 +364,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         if (isLimitReached) {
             _isFreeLimitReached.value = true
-            _statusMessage.value = "Free 20-Min Call Limit Reached"
+            _statusMessage.value = "Free 10-Min Call Limit Reached"
         } else {
             _statusMessage.value = "Call Ended"
         }

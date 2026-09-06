@@ -55,7 +55,10 @@ data class Friend(
     val isOnline: Boolean = true,
     val avatarColorIndex: Int = 0,
     val lastMessage: String = "Tap to chat",
-    val lastMessageTime: String = "Just now"
+    val lastMessageTime: String = "Just now",
+    val level: String = "Intermediate",
+    val streak: Int = 1,
+    val location: String = "India"
 )
 
 /**

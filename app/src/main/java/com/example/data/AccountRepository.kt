@@ -282,30 +282,51 @@ class AccountRepository(context: Context) {
         return listOf(
             Friend(
                 id = "f_1",
-                friendCode = "SPK-4821",
-                name = "Aarav Sharma (Advanced)",
+                friendCode = "SPK-1042",
+                name = "Aarav Sharma",
                 isOnline = true,
                 avatarColorIndex = 1,
                 lastMessage = "Hey! Let's practice IELTS speaking topics today?",
-                lastMessageTime = "12:30 PM"
+                lastMessageTime = "12:30 PM",
+                level = "Intermediate",
+                streak = 7,
+                location = "Mumbai, IN"
             ),
             Friend(
                 id = "f_2",
-                friendCode = "SPK-8923",
-                name = "Priya Patel (Intermediate)",
+                friendCode = "SPK-3910",
+                name = "Priya Patel",
                 isOnline = true,
                 avatarColorIndex = 2,
                 lastMessage = "Thanks for the great conversation earlier!",
-                lastMessageTime = "Yesterday"
+                lastMessageTime = "Yesterday",
+                level = "Advanced",
+                streak = 14,
+                location = "Ahmedabad, IN"
             ),
             Friend(
                 id = "f_3",
-                friendCode = "SPK-3109",
-                name = "Rohan Verma (Beginner)",
+                friendCode = "SPK-5582",
+                name = "Vikram Singh",
+                isOnline = false,
+                avatarColorIndex = 0,
+                lastMessage = "Will be online at 8 PM for mock interview.",
+                lastMessageTime = "2 days ago",
+                level = "Beginner",
+                streak = 4,
+                location = "Jaipur, IN"
+            ),
+            Friend(
+                id = "f_4",
+                friendCode = "SPK-8821",
+                name = "Ananya Roy",
                 isOnline = false,
                 avatarColorIndex = 3,
-                lastMessage = "Will be online at 8 PM for mock interview.",
-                lastMessageTime = "2 days ago"
+                lastMessage = "Great practice session yesterday!",
+                lastMessageTime = "3 days ago",
+                level = "Intermediate",
+                streak = 12,
+                location = "Kolkata, IN"
             )
         )
     }

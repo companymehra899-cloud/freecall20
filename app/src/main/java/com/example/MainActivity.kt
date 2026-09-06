@@ -818,7 +818,7 @@ fun CallEndedScreen(
                     .padding(vertical = 14.dp)
             ) {
                 Text(
-                    text = "👑 Remove 20-Min Limit (₹100 / 5 Months)",
+                    text = "👑 Remove 10-Min Limit (₹100 / 5 Months)",
                     color = GoldLight,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold
