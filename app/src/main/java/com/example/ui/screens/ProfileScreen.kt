@@ -114,26 +114,26 @@ fun ProfileScreen(
         Text(
             text = "My Profile",
             color = TextPrimary,
-            fontSize = 22.sp,
+            fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
+            modifier = Modifier.padding(top = 8.dp, bottom = 18.dp)
         )
 
         // Profile Avatar Card
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(20.dp))
+                .clip(RoundedCornerShape(22.dp))
                 .background(DarkSurface)
-                .border(1.dp, DarkBorder, RoundedCornerShape(20.dp))
-                .padding(20.dp)
+                .border(1.dp, DarkBorder, RoundedCornerShape(22.dp))
+                .padding(22.dp)
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                 // Large Avatar with Gallery click picker
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(86.dp)
+                        .size(96.dp)
                         .clip(CircleShape)
                         .clickable {
                             photoPickerLauncher.launch(
@@ -147,7 +147,7 @@ fun ProfileScreen(
                             .fillMaxSize()
                             .clip(CircleShape)
                             .background(avatarColor.copy(alpha = 0.2f))
-                            .border(2.5.dp, if (user.isSubscribed) GoldAccent else EmeraldLight, CircleShape)
+                            .border(3.dp, if (user.isSubscribed) GoldAccent else EmeraldLight, CircleShape)
                     ) {
                         if (!user.profileImageUri.isNullOrBlank()) {
                             AsyncImage(
@@ -162,7 +162,7 @@ fun ProfileScreen(
                             Text(
                                 text = user.displayName.take(1).uppercase(),
                                 color = if (user.isSubscribed) GoldLight else EmeraldLight,
-                                fontSize = 34.sp,
+                                fontSize = 38.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -173,7 +173,7 @@ fun ProfileScreen(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
-                            .size(28.dp)
+                            .size(32.dp)
                             .clip(CircleShape)
                             .background(DarkSurfaceElevated)
                             .border(1.5.dp, EmeraldLight, CircleShape)
@@ -182,28 +182,28 @@ fun ProfileScreen(
                             imageVector = Icons.Default.CameraAlt,
                             contentDescription = "Pick from Gallery",
                             tint = EmeraldLight,
-                            modifier = Modifier.size(14.dp)
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                 }
 
                 if (!user.profileImageUri.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Remove Photo",
                         color = RedEndCall,
-                        fontSize = 11.sp,
+                        fontSize = 12.sp,
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
                             .clickable {
                                 onUpdateProfileImage(null)
                                 Toast.makeText(context, "Profile photo removed", Toast.LENGTH_SHORT).show()
                             }
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                            .padding(horizontal = 8.dp, vertical = 3.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -213,25 +213,25 @@ fun ProfileScreen(
                     Text(
                         text = user.displayName,
                         color = TextPrimary,
-                        fontSize = 18.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false)
                     )
                     if (user.isSubscribed) {
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(6.dp))
                                 .background(GoldSurface)
                                 .border(1.dp, GoldAccent, RoundedCornerShape(6.dp))
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                                .padding(horizontal = 8.dp, vertical = 3.dp)
                         ) {
                             Text(
                                 text = "VIP PRO",
                                 color = GoldLight,
-                                fontSize = 10.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -246,24 +246,22 @@ fun ProfileScreen(
                         else -> "Registered Learner"
                     },
                     color = TextMuted,
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(top = 2.dp)
+                    modifier = Modifier.padding(top = 4.dp)
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
-
-
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(18.dp))
 
         // Practice Statistics
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             StatCard(
                 icon = Icons.Default.Phone,
@@ -281,54 +279,55 @@ fun ProfileScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(18.dp))
 
         // VIP Plan Banner
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(18.dp))
                 .background(if (user.isSubscribed) GoldSurface else DarkSurface)
-                .border(1.dp, if (user.isSubscribed) GoldAccent else DarkBorder, RoundedCornerShape(16.dp))
+                .border(1.dp, if (user.isSubscribed) GoldAccent else DarkBorder, RoundedCornerShape(18.dp))
                 .clickable { onNavigateTab(AppTab.SUBSCRIPTION) }
-                .padding(16.dp)
+                .padding(18.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Icon(
                         imageVector = Icons.Default.Diamond,
                         contentDescription = "VIP",
                         tint = GoldLight,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(26.dp)
                     )
                     Column {
                         Text(
                             text = if (user.isSubscribed) "VIP 5-Month Pass (Active)" else "₹100 5-Months VIP Plan",
                             color = GoldLight,
-                            fontSize = 14.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = if (user.isSubscribed) "Expires: ${user.subscriptionExpiryDate}" else "Direct friend calling & text chat",
                             color = TextSecondary,
-                            fontSize = 11.sp
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(top = 1.dp)
                         )
                     }
                 }
                 Text(
                     text = if (user.isSubscribed) "Details ➔" else "Upgrade ➔",
                     color = GoldLight,
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(18.dp))
 
         // Account / Login Action
         if (user.isGuest) {
@@ -339,7 +338,7 @@ fun ProfileScreen(
                     .clip(RoundedCornerShape(14.dp))
                     .background(EmeraldAccent)
                     .clickable { onOpenAuth() }
-                    .padding(vertical = 14.dp)
+                    .padding(vertical = 15.dp)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -349,12 +348,12 @@ fun ProfileScreen(
                         imageVector = Icons.Default.Person,
                         contentDescription = "Login",
                         tint = Color.Black,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(20.dp)
                     )
                     Text(
                         text = "Login / Sign Up",
                         color = Color.Black,
-                        fontSize = 14.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -368,7 +367,7 @@ fun ProfileScreen(
                     .background(DarkSurfaceElevated)
                     .border(1.dp, DarkBorder, RoundedCornerShape(14.dp))
                     .clickable { onLogout() }
-                    .padding(vertical = 14.dp)
+                    .padding(vertical = 15.dp)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -378,12 +377,12 @@ fun ProfileScreen(
                         imageVector = Icons.AutoMirrored.Filled.Logout,
                         contentDescription = "Logout",
                         tint = RedEndCall,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(20.dp)
                     )
                     Text(
                         text = "Logout (Switch to Guest)",
                         color = RedEndCall,
-                        fontSize = 14.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -395,7 +394,7 @@ fun ProfileScreen(
         Text(
             text = "SpeakFree v1.0 • HD Voice Connection",
             color = TextMuted,
-            fontSize = 11.sp,
+            fontSize = 12.sp,
             modifier = Modifier.padding(bottom = 12.dp)
         )
     }
@@ -411,29 +410,30 @@ fun StatCard(
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(16.dp))
             .background(DarkSurface)
-            .border(1.dp, DarkBorder, RoundedCornerShape(14.dp))
-            .padding(14.dp)
+            .border(1.dp, DarkBorder, RoundedCornerShape(16.dp))
+            .padding(16.dp)
     ) {
         Column {
             Icon(
                 imageVector = icon,
                 contentDescription = label,
                 tint = iconColor,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(24.dp)
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = value,
                 color = TextPrimary,
-                fontSize = 18.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = label,
                 color = TextMuted,
-                fontSize = 11.sp
+                fontSize = 13.sp,
+                modifier = Modifier.padding(top = 2.dp)
             )
         }
     }

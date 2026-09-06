@@ -78,19 +78,19 @@ fun SubscriptionScreen(
         // Header
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier.padding(top = 4.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.Diamond,
                 contentDescription = "VIP",
                 tint = GoldLight,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(28.dp)
             )
             Text(
                 text = "SpeakFree VIP Pass",
                 color = TextPrimary,
-                fontSize = 22.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
         }
@@ -98,9 +98,9 @@ fun SubscriptionScreen(
         Text(
             text = "Connect directly with friends & practice unlimited speaking",
             color = TextSecondary,
-            fontSize = 13.sp,
+            fontSize = 14.sp,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
+            modifier = Modifier.padding(top = 6.dp, bottom = 18.dp)
         )
 
         // Billing Alert Message (e.g. error, cancellation)
@@ -108,36 +108,36 @@ fun SubscriptionScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(14.dp))
                     .background(Color(0xFF2A1C16))
-                    .border(1.dp, Color(0xFFE06C45), RoundedCornerShape(12.dp))
+                    .border(1.dp, Color(0xFFE06C45), RoundedCornerShape(14.dp))
                     .clickable { onDismissBillingMessage() }
-                    .padding(horizontal = 14.dp, vertical = 10.dp)
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Security,
                         contentDescription = "Alert",
                         tint = Color(0xFFFFA07A),
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(20.dp)
                     )
                     Text(
                         text = billingMessage,
                         color = Color(0xFFFDE8E1),
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         modifier = Modifier.weight(1f)
                     )
                     Text(
                         text = "✕",
                         color = TextMuted,
-                        fontSize = 14.sp
+                        fontSize = 16.sp
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         // If User is already subscribed -> Active VIP Card with Verified Google Play Receipt info
@@ -145,14 +145,14 @@ fun SubscriptionScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp))
+                    .clip(RoundedCornerShape(22.dp))
                     .background(
                         Brush.linearGradient(
                             listOf(Color(0xFF2E230B), Color(0xFF1E1707))
                         )
                     )
-                    .border(1.5.dp, GoldAccent, RoundedCornerShape(20.dp))
-                    .padding(20.dp)
+                    .border(1.5.dp, GoldAccent, RoundedCornerShape(22.dp))
+                    .padding(22.dp)
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Row(
@@ -162,18 +162,18 @@ fun SubscriptionScreen(
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = "Active",
                                 tint = GoldLight,
-                                modifier = Modifier.size(22.dp)
+                                modifier = Modifier.size(24.dp)
                             )
                             Text(
                                 text = "VIP PRO ACTIVE",
                                 color = GoldLight,
-                                fontSize = 16.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -181,28 +181,28 @@ fun SubscriptionScreen(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(GoldAccent)
-                                .padding(horizontal = 8.dp, vertical = 3.dp)
+                                .padding(horizontal = 10.dp, vertical = 4.dp)
                         ) {
                             Text(
                                 text = "5-MONTH PASS",
                                 color = Color.Black,
-                                fontSize = 10.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
                         text = "Subscription Valid Until",
                         color = TextMuted,
-                        fontSize = 12.sp
+                        fontSize = 13.sp
                     )
                     Text(
                         text = user.subscriptionExpiryDate.ifEmpty { "5 Months Active" },
                         color = TextPrimary,
-                        fontSize = 20.sp,
+                        fontSize = 22.sp,
                         fontWeight = FontWeight.Bold
                     )
 
@@ -211,16 +211,16 @@ fun SubscriptionScreen(
                         Text(
                             text = "Google Play Order: ${user.googlePlayOrderId}",
                             color = GoldLight.copy(alpha = 0.7f),
-                            fontSize = 10.sp
+                            fontSize = 11.sp
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
 
                     Text(
                         text = "Unlocked: Unlimited Non-Stop Call Duration & Direct Friend Chat!",
                         color = TextSecondary,
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -232,14 +232,14 @@ fun SubscriptionScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp))
+                    .clip(RoundedCornerShape(22.dp))
                     .background(
                         Brush.verticalGradient(
                             listOf(Color(0xFF271F0C), Color(0xFF171307))
                         )
                     )
-                    .border(2.dp, GoldAccent, RoundedCornerShape(20.dp))
-                    .padding(20.dp)
+                    .border(2.dp, GoldAccent, RoundedCornerShape(22.dp))
+                    .padding(22.dp)
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     // Badge
@@ -247,17 +247,17 @@ fun SubscriptionScreen(
                         modifier = Modifier
                             .clip(RoundedCornerShape(20.dp))
                             .background(GoldAccent)
-                            .padding(horizontal = 12.dp, vertical = 4.dp)
+                            .padding(horizontal = 14.dp, vertical = 6.dp)
                     ) {
                         Text(
                             text = "⭐ OFFICIAL GOOGLE PLAY PASS",
                             color = Color.Black,
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     // Price Tag
                     Row(
@@ -267,13 +267,13 @@ fun SubscriptionScreen(
                         Text(
                             text = "₹100",
                             color = GoldLight,
-                            fontSize = 38.sp,
+                            fontSize = 42.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = " / 5 Months",
                             color = TextSecondary,
-                            fontSize = 15.sp,
+                            fontSize = 17.sp,
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier.padding(bottom = 6.dp, start = 4.dp)
                         )
@@ -282,29 +282,29 @@ fun SubscriptionScreen(
                     Text(
                         text = "Just ₹20 per month • Official Google Play In-App Subscription",
                         color = GoldLight.copy(alpha = 0.85f),
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         textAlign = TextAlign.Center
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(20.dp))
         }
 
         // Benefits Checklist
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(18.dp))
                 .background(DarkSurface)
-                .border(1.dp, DarkBorder, RoundedCornerShape(16.dp))
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+                .border(1.dp, DarkBorder, RoundedCornerShape(18.dp))
+                .padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
                 text = "Everything Included in VIP Plan:",
                 color = TextPrimary,
-                fontSize = 14.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
 
@@ -337,35 +337,35 @@ fun SubscriptionScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(22.dp))
 
         // Official Google Play Billing CTA (If not subscribed)
         if (!user.isSubscribed) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(18.dp))
                     .background(DarkSurfaceElevated)
-                    .border(1.dp, DarkBorder, RoundedCornerShape(16.dp))
-                    .padding(16.dp),
+                    .border(1.dp, DarkBorder, RoundedCornerShape(18.dp))
+                    .padding(18.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Official Google Play Assurance Badge
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.padding(bottom = 12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(bottom = 14.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.ShoppingBag,
                         contentDescription = "Google Play",
                         tint = EmeraldLight,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(18.dp)
                     )
                     Text(
                         text = "Google Play In-App Purchase",
                         color = EmeraldLight,
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -397,13 +397,13 @@ fun SubscriptionScreen(
                         ) {
                             CircularProgressIndicator(
                                 color = Color.Black,
-                                modifier = Modifier.size(18.dp),
-                                strokeWidth = 2.dp
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.5.dp
                             )
                             Text(
                                 text = "Connecting to Google Play...",
                                 color = Color.Black,
-                                fontSize = 14.sp,
+                                fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -416,26 +416,26 @@ fun SubscriptionScreen(
                                 imageVector = Icons.Default.Diamond,
                                 contentDescription = "Subscribe",
                                 tint = Color.Black,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(22.dp)
                             )
                             Text(
                                 text = if (user.isGuest) "Log In to Subscribe (₹100 / 5 Mo)" else "Subscribe with Google Play",
                                 color = Color.Black,
-                                fontSize = 15.sp,
+                                fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 Text(
                     text = "🔒 Managed securely by Google Play. Instant activation upon purchase receipt verification. Cancel anytime in Google Play Store subscriptions.",
                     color = TextMuted,
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     textAlign = TextAlign.Center,
-                    lineHeight = 16.sp
+                    lineHeight = 18.sp
                 )
             }
         }
@@ -451,35 +451,35 @@ fun BenefitRow(
 ) {
     Row(
         verticalAlignment = Alignment.Top,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(32.dp)
-                .clip(RoundedCornerShape(8.dp))
+                .size(38.dp)
+                .clip(RoundedCornerShape(10.dp))
                 .background(iconColor.copy(alpha = 0.15f))
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = title,
                 tint = iconColor,
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(20.dp)
             )
         }
         Column {
             Text(
                 text = title,
                 color = TextPrimary,
-                fontSize = 13.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
                 text = description,
                 color = TextSecondary,
-                fontSize = 11.sp,
-                modifier = Modifier.padding(top = 1.dp)
+                fontSize = 13.sp,
+                modifier = Modifier.padding(top = 2.dp)
             )
         }
     }

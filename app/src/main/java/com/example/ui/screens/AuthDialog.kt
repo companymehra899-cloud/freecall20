@@ -119,26 +119,26 @@ fun AuthDialog(
                     else
                         "Sign up to practice English and track your progress",
                     color = TextSecondary,
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 4.dp, bottom = 16.dp)
+                        .padding(top = 4.dp, bottom = 18.dp)
                 )
 
                 if (errorMsg.isNotEmpty()) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 12.dp)
-                            .clip(RoundedCornerShape(10.dp))
+                            .padding(bottom = 14.dp)
+                            .clip(RoundedCornerShape(12.dp))
                             .background(Color(0xFF3B1B1B))
-                            .border(1.dp, Color(0xFFEF4444), RoundedCornerShape(10.dp))
-                            .padding(10.dp)
+                            .border(1.dp, Color(0xFFEF4444), RoundedCornerShape(12.dp))
+                            .padding(12.dp)
                     ) {
                         Text(
                             text = errorMsg,
                             color = Color(0xFFEF4444),
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -148,16 +148,16 @@ fun AuthDialog(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 12.dp)
-                            .clip(RoundedCornerShape(10.dp))
+                            .padding(bottom = 14.dp)
+                            .clip(RoundedCornerShape(12.dp))
                             .background(Color(0xFF1B3B22))
-                            .border(1.dp, Color(0xFF10B981), RoundedCornerShape(10.dp))
-                            .padding(10.dp)
+                            .border(1.dp, Color(0xFF10B981), RoundedCornerShape(12.dp))
+                            .padding(12.dp)
                     ) {
                         Text(
                             text = successMsg,
                             color = Color(0xFF10B981),
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -177,8 +177,8 @@ fun AuthDialog(
                                     nameInput = it
                                     errorMsg = ""
                                 },
-                                label = { Text("Display Name", color = TextMuted, fontSize = 12.sp) },
-                                placeholder = { Text("e.g. Harish Singh", color = TextMuted) },
+                                label = { Text("Display Name", color = TextMuted, fontSize = 13.sp) },
+                                placeholder = { Text("e.g. Harish Singh", color = TextMuted, fontSize = 14.sp) },
                                 leadingIcon = {
                                     Icon(Icons.Default.Person, contentDescription = "Name", tint = TextMuted)
                                 },
@@ -192,10 +192,10 @@ fun AuthDialog(
                                     focusedContainerColor = DarkSurfaceElevated,
                                     unfocusedContainerColor = DarkSurfaceElevated
                                 ),
-                                shape = RoundedCornerShape(12.dp),
+                                shape = RoundedCornerShape(14.dp),
                                 modifier = Modifier.fillMaxWidth()
                             )
-                            Spacer(modifier = Modifier.height(12.dp))
+                            Spacer(modifier = Modifier.height(14.dp))
                         }
 
                         // Email Input
@@ -205,8 +205,8 @@ fun AuthDialog(
                                 emailInput = it
                                 errorMsg = ""
                             },
-                            label = { Text("Email Address", color = TextMuted, fontSize = 12.sp) },
-                            placeholder = { Text("yourname@example.com", color = TextMuted) },
+                            label = { Text("Email Address", color = TextMuted, fontSize = 13.sp) },
+                            placeholder = { Text("yourname@example.com", color = TextMuted, fontSize = 14.sp) },
                             leadingIcon = {
                                 Icon(Icons.Default.Email, contentDescription = "Email", tint = TextMuted)
                             },
@@ -223,11 +223,11 @@ fun AuthDialog(
                                 focusedContainerColor = DarkSurfaceElevated,
                                 unfocusedContainerColor = DarkSurfaceElevated
                             ),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(14.dp),
                             modifier = Modifier.fillMaxWidth()
                         )
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(14.dp))
 
                         // Password Input
                         OutlinedTextField(
@@ -236,8 +236,8 @@ fun AuthDialog(
                                 passwordInput = it
                                 errorMsg = ""
                             },
-                            label = { Text("Password", color = TextMuted, fontSize = 12.sp) },
-                            placeholder = { Text("••••••••", color = TextMuted) },
+                            label = { Text("Password", color = TextMuted, fontSize = 13.sp) },
+                            placeholder = { Text("••••••••", color = TextMuted, fontSize = 14.sp) },
                             leadingIcon = {
                                 Icon(Icons.Default.Lock, contentDescription = "Password", tint = TextMuted)
                             },
@@ -261,11 +261,11 @@ fun AuthDialog(
                                 focusedContainerColor = DarkSurfaceElevated,
                                 unfocusedContainerColor = DarkSurfaceElevated
                             ),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(14.dp),
                             modifier = Modifier.fillMaxWidth()
                         )
 
-                        Spacer(modifier = Modifier.height(20.dp))
+                        Spacer(modifier = Modifier.height(22.dp))
 
                         // Submit Button
                         Box(
@@ -346,7 +346,7 @@ fun AuthDialog(
                                             }
                                     }
                                 }
-                                .padding(vertical = 14.dp)
+                                .padding(vertical = 16.dp)
                         ) {
                             if (isLoading) {
                                 CircularProgressIndicator(color = Color.Black, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
@@ -354,13 +354,13 @@ fun AuthDialog(
                                 Text(
                                     text = if (currentStep == AuthStep.LOGIN) "Log In" else "Sign Up",
                                     color = Color.Black,
-                                    fontSize = 15.sp,
+                                    fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(14.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         // Switch Step Text
                         Row(
@@ -370,12 +370,12 @@ fun AuthDialog(
                             Text(
                                 text = if (currentStep == AuthStep.LOGIN) "New to SpeakFree? " else "Already have an account? ",
                                 color = TextMuted,
-                                fontSize = 12.sp
+                                fontSize = 13.sp
                             )
                             Text(
                                 text = if (currentStep == AuthStep.LOGIN) "Sign Up" else "Log In",
                                 color = EmeraldLight,
-                                fontSize = 12.sp,
+                                fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.clickable {
                                     step = if (currentStep == AuthStep.LOGIN) AuthStep.SIGNUP else AuthStep.LOGIN
@@ -387,16 +387,16 @@ fun AuthDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Guest option
                 Text(
                     text = "Continue as Guest without login",
                     color = TextMuted,
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     modifier = Modifier
                         .clickable { onDismiss() }
-                        .padding(vertical = 4.dp)
+                        .padding(vertical = 6.dp)
                 )
             }
         }

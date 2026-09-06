@@ -133,20 +133,20 @@ fun DirectChatScreen(
                     Text(
                         text = friend.name,
                         color = TextPrimary,
-                        fontSize = 15.sp,
+                        fontSize = 17.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         Box(
                             modifier = Modifier
-                                .size(6.dp)
+                                .size(7.dp)
                                 .clip(CircleShape)
                                 .background(if (friend.isOnline) EmeraldAccent else TextMuted)
                         )
                         Text(
                             text = if (friend.isOnline) "Online • ${friend.friendCode}" else "Offline • ${friend.friendCode}",
                             color = if (friend.isOnline) EmeraldLight else TextMuted,
-                            fontSize = 11.sp
+                            fontSize = 12.sp
                         )
                     }
                 }
@@ -156,7 +156,7 @@ fun DirectChatScreen(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(44.dp)
                     .clip(CircleShape)
                     .background(EmeraldAccent)
                     .clickable { onDirectCall() }
@@ -165,7 +165,7 @@ fun DirectChatScreen(
                     imageVector = Icons.Default.Phone,
                     contentDescription = "Direct Call",
                     tint = Color.Black,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(22.dp)
                 )
             }
         }
@@ -177,7 +177,7 @@ fun DirectChatScreen(
                 .weight(1f)
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(messages) { msg ->
                 val isMe = msg.senderId == user.userId
@@ -189,27 +189,27 @@ fun DirectChatScreen(
                         modifier = Modifier
                             .clip(
                                 RoundedCornerShape(
-                                    topStart = 16.dp,
-                                    topEnd = 16.dp,
-                                    bottomStart = if (isMe) 16.dp else 4.dp,
-                                    bottomEnd = if (isMe) 4.dp else 16.dp
+                                    topStart = 18.dp,
+                                    topEnd = 18.dp,
+                                    bottomStart = if (isMe) 18.dp else 4.dp,
+                                    bottomEnd = if (isMe) 4.dp else 18.dp
                                 )
                             )
                             .background(if (isMe) EmeraldAccent else DarkSurfaceElevated)
-                            .border(1.dp, if (isMe) EmeraldLight else DarkBorder, RoundedCornerShape(16.dp))
-                            .padding(horizontal = 14.dp, vertical = 10.dp)
+                            .border(1.dp, if (isMe) EmeraldLight else DarkBorder, RoundedCornerShape(18.dp))
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
                     ) {
                         Column {
                             Text(
                                 text = msg.text,
                                 color = if (isMe) Color.Black else TextPrimary,
-                                fontSize = 14.sp
+                                fontSize = 15.sp
                             )
-                            Spacer(modifier = Modifier.height(2.dp))
+                            Spacer(modifier = Modifier.height(3.dp))
                             Text(
                                 text = msg.timeFormatted,
                                 color = if (isMe) Color.Black.copy(alpha = 0.6f) else TextMuted,
-                                fontSize = 10.sp,
+                                fontSize = 11.sp,
                                 modifier = Modifier.align(Alignment.End)
                             )
                         }
@@ -226,23 +226,23 @@ fun DirectChatScreen(
                     .background(GoldSurface)
                     .border(1.dp, GoldAccent.copy(alpha = 0.5f))
                     .clickable { onOpenSubscription() }
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .padding(horizontal = 16.dp, vertical = 14.dp)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Icon(Icons.Default.Lock, contentDescription = "Locked", tint = GoldLight, modifier = Modifier.size(18.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Icon(Icons.Default.Lock, contentDescription = "Locked", tint = GoldLight, modifier = Modifier.size(20.dp))
                         Text(
                             text = "Activate VIP Plan (₹100 / 5 Mo) to send messages",
                             color = GoldLight,
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
-                    Text(text = "Unlock ➔", color = GoldLight, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(text = "Unlock ➔", color = GoldLight, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
             }
         } else {
@@ -251,14 +251,14 @@ fun DirectChatScreen(
                     .fillMaxWidth()
                     .background(DarkSurface)
                     .border(1.dp, DarkBorder)
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 OutlinedTextField(
                     value = textInput,
                     onValueChange = { textInput = it },
-                    placeholder = { Text("Type a message...", color = TextMuted, fontSize = 13.sp) },
+                    placeholder = { Text("Type a message...", color = TextMuted, fontSize = 14.sp) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                     keyboardActions = KeyboardActions(onSend = {
@@ -275,16 +275,16 @@ fun DirectChatScreen(
                         focusedContainerColor = DarkSurfaceElevated,
                         unfocusedContainerColor = DarkSurfaceElevated
                     ),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = RoundedCornerShape(22.dp),
                     modifier = Modifier
                         .weight(1f)
-                        .height(50.dp)
+                        .height(54.dp)
                 )
 
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(44.dp)
+                        .size(48.dp)
                         .clip(CircleShape)
                         .background(EmeraldAccent)
                         .clickable {
@@ -298,7 +298,7 @@ fun DirectChatScreen(
                         imageVector = Icons.AutoMirrored.Filled.Send,
                         contentDescription = "Send",
                         tint = Color.Black,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }

@@ -104,13 +104,13 @@ fun HomeScreen(
             .verticalScroll(scrollState)
             .padding(horizontal = 16.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // App Identity Brand Card
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(18.dp))
                 .background(
                     Brush.horizontalGradient(
                         colors = listOf(
@@ -120,42 +120,42 @@ fun HomeScreen(
                         )
                     )
                 )
-                .border(1.dp, Color(0x3338BDF8), RoundedCornerShape(16.dp))
-                .padding(10.dp),
+                .border(1.dp, Color(0x3338BDF8), RoundedCornerShape(18.dp))
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_launcher_foreground),
                 contentDescription = "SpeakFree",
                 modifier = Modifier
-                    .size(42.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(14.dp))
                     .background(Color(0xFF0284C7).copy(alpha = 0.3f))
-                    .border(1.dp, Color(0x5538BDF8), RoundedCornerShape(12.dp))
+                    .border(1.dp, Color(0x5538BDF8), RoundedCornerShape(14.dp))
             )
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
                         text = "SpeakFree",
                         color = Color.White,
-                        fontSize = 13.sp,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
+                            .clip(RoundedCornerShape(6.dp))
                             .background(Color(0x330284C7))
-                            .border(1.dp, Color(0x4D38BDF8), RoundedCornerShape(4.dp))
-                            .padding(horizontal = 6.dp, vertical = 1.dp)
+                            .border(1.dp, Color(0x4D38BDF8), RoundedCornerShape(6.dp))
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
                         Text(
                             text = "Live P2P",
                             color = Color(0xFF7DD3FC),
-                            fontSize = 9.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -163,10 +163,10 @@ fun HomeScreen(
                 Text(
                     text = "Practice spoken English with real partners",
                     color = Color(0xFF94A3B8),
-                    fontSize = 11.sp,
+                    fontSize = 13.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(top = 1.dp)
+                    modifier = Modifier.padding(top = 2.dp)
                 )
             }
         }
@@ -175,34 +175,34 @@ fun HomeScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(14.dp))
                 .background(Color(0x1A10B981))
-                .border(1.dp, Color(0x3310B981), RoundedCornerShape(12.dp))
-                .padding(horizontal = 14.dp, vertical = 8.dp),
+                .border(1.dp, Color(0x3310B981), RoundedCornerShape(14.dp))
+                .padding(horizontal = 16.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Box(
                     modifier = Modifier
-                        .size(8.dp)
+                        .size(10.dp)
                         .clip(CircleShape)
                         .background(EmeraldAccent)
                 )
                 Text(
                     text = "1,480+ Learners Active Online",
                     color = EmeraldLight,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
             Text(
                 text = "Instant Match",
                 color = Color(0xFF6EE7B7),
-                fontSize = 10.sp,
+                fontSize = 12.sp,
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.Bold
             )
@@ -212,7 +212,7 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(20.dp))
+                .clip(RoundedCornerShape(24.dp))
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
@@ -221,21 +221,21 @@ fun HomeScreen(
                         )
                     )
                 )
-                .border(1.dp, DarkBorder, RoundedCornerShape(20.dp))
-                .padding(20.dp),
+                .border(1.dp, DarkBorder, RoundedCornerShape(24.dp))
+                .padding(22.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Pulse & Button
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(170.dp)
+                    .size(190.dp)
                     .padding(vertical = 8.dp)
             ) {
                 // Ping Halo
                 Box(
                     modifier = Modifier
-                        .size(150.dp)
+                        .size(170.dp)
                         .scale(pulseScale)
                         .clip(CircleShape)
                         .background(
@@ -250,7 +250,7 @@ fun HomeScreen(
                 // Border Ring
                 Box(
                     modifier = Modifier
-                        .size(125.dp)
+                        .size(140.dp)
                         .clip(CircleShape)
                         .border(1.5.dp, EmeraldAccent.copy(alpha = 0.35f), CircleShape)
                 )
@@ -258,7 +258,7 @@ fun HomeScreen(
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(105.dp)
+                        .size(118.dp)
                         .clip(CircleShape)
                         .background(
                             Brush.verticalGradient(
@@ -268,7 +268,7 @@ fun HomeScreen(
                                 )
                             )
                         )
-                        .border(2.dp, EmeraldAccent, CircleShape)
+                        .border(2.5.dp, EmeraldAccent, CircleShape)
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
@@ -283,13 +283,13 @@ fun HomeScreen(
                             imageVector = Icons.Default.Mic,
                             contentDescription = "Mic",
                             tint = EmeraldLight,
-                            modifier = Modifier.size(28.dp)
+                            modifier = Modifier.size(34.dp)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Find Partner",
                             color = Color.White,
-                            fontSize = 11.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -299,51 +299,51 @@ fun HomeScreen(
             Text(
                 text = "Anonymous English Practice",
                 color = Color.White,
-                fontSize = 15.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "Tap button above to instantly talk with a random English learner worldwide.",
                 color = Color(0xFF94A3B8),
-                fontSize = 11.sp,
+                fontSize = 13.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 4.dp, start = 12.dp, end = 12.dp)
+                modifier = Modifier.padding(top = 6.dp, start = 12.dp, end = 12.dp)
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // English Level Selector
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, Color(0x1FFFFFFF), RoundedCornerShape(10.dp))
-                    .padding(vertical = 8.dp, horizontal = 10.dp),
+                    .border(1.dp, Color(0x1FFFFFFF), RoundedCornerShape(12.dp))
+                    .padding(vertical = 10.dp, horizontal = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "Your Level:",
                     color = Color(0xFF94A3B8),
-                    fontSize = 11.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Medium
                 )
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf("Beginner", "Intermediate", "Advanced").forEach { level ->
                         val isSelected = selectedEnglishLevel == level
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(6.dp))
+                                .clip(RoundedCornerShape(8.dp))
                                 .background(
                                     if (isSelected) EmeraldAccent else Color(0xFF1E293B)
                                 )
                                 .clickable { selectedEnglishLevel = level }
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                .padding(horizontal = 10.dp, vertical = 6.dp)
                         ) {
                             Text(
                                 text = level,
                                 color = if (isSelected) Color(0xFF0F172A) else Color(0xFF94A3B8),
-                                fontSize = 10.sp,
+                                fontSize = 12.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold
                             )
                         }
@@ -355,7 +355,7 @@ fun HomeScreen(
         // Today's Conversation Starters
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -365,14 +365,14 @@ fun HomeScreen(
                 Text(
                     text = "TODAY'S TOPIC CARDS",
                     color = Color(0xFFCBD5E1),
-                    fontSize = 11.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 0.5.sp
                 )
                 Text(
                     text = "Icebreakers",
-                    color = Color(0xFF64748B),
-                    fontSize = 10.sp
+                    color = Color(0xFF94A3B8),
+                    fontSize = 12.sp
                 )
             }
 
@@ -393,37 +393,37 @@ fun HomeScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(14.dp))
+                .clip(RoundedCornerShape(16.dp))
                 .background(Color(0x1AA855F7))
-                .border(1.dp, Color(0x33A855F7), RoundedCornerShape(14.dp))
-                .padding(14.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                .border(1.dp, Color(0x33A855F7), RoundedCornerShape(16.dp))
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.Top
         ) {
             Icon(
                 imageVector = Icons.Default.Star,
                 contentDescription = "Tip",
                 tint = Color(0xFFC084FC),
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(22.dp)
             )
             Column {
                 Text(
                     text = "Daily Fluency Tip",
                     color = Color(0xFFC084FC),
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "Don't worry about making grammatical mistakes! Fluency comes from speaking continuously for at least 15 minutes every day.",
                     color = Color(0xFFCBD5E1),
-                    fontSize = 11.sp,
-                    lineHeight = 16.sp,
-                    modifier = Modifier.padding(top = 2.dp)
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp,
+                    modifier = Modifier.padding(top = 4.dp)
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(12.dp))
     }
 }
 
@@ -436,10 +436,10 @@ fun TopicCard(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(16.dp))
             .background(Color(0xCC0F172A))
-            .border(1.dp, DarkBorder, RoundedCornerShape(14.dp))
-            .padding(12.dp),
+            .border(1.dp, DarkBorder, RoundedCornerShape(16.dp))
+            .padding(14.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -447,29 +447,29 @@ fun TopicCard(
             Text(
                 text = title,
                 color = Color.White,
-                fontSize = 12.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = subtitle,
                 color = Color(0xFF94A3B8),
-                fontSize = 10.sp,
-                modifier = Modifier.padding(top = 2.dp),
+                fontSize = 12.sp,
+                modifier = Modifier.padding(top = 3.dp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
         }
         Box(
             modifier = Modifier
-                .clip(RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(10.dp))
                 .background(Color(0x3310B981))
                 .clickable(onClick = onPracticeClicked)
-                .padding(horizontal = 10.dp, vertical = 6.dp)
+                .padding(horizontal = 12.dp, vertical = 7.dp)
         ) {
             Text(
                 text = "Practice",
                 color = EmeraldLight,
-                fontSize = 11.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold
             )
         }
