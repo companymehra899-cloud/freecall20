@@ -918,7 +918,7 @@ export default function App() {
                                 <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
                                   Speaking Buddies ({friendsList.length})
                                 </h4>
-                                <span className="text-[10px] text-emerald-400 font-semibold">2 Online Now</span>
+                                <span className="text-[10px] text-emerald-400 font-semibold">{friendsList.filter(f => f.status === 'Online').length} Online Now</span>
                               </div>
 
                               <div className="space-y-2">
