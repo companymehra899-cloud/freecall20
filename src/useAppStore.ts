@@ -223,7 +223,7 @@ export function useAppStore(): AppStore {
     }, 1000);
   }, [addLog]);
 
-  const dismissCallEnded = useCallback(() => {
+  const resetToIdle = useCallback(() => {
     if (resetTimeoutRef.current) {
       clearTimeout(resetTimeoutRef.current);
       resetTimeoutRef.current = null;
@@ -237,6 +237,8 @@ export function useAppStore(): AppStore {
     setIsFreeLimitReached(false);
     setSearchingSeconds(0);
   }, []);
+
+  const dismissCallEnded = resetToIdle;
 
   const findPartner = useCallback(() => {
     clearTimers();
@@ -313,10 +315,8 @@ export function useAppStore(): AppStore {
         totalTalkTimeSeconds: prev.totalTalkTimeSeconds + talkSeconds,
       }));
     }
-    setStatusMessage('Call completed');
-    setCallState('ENDED');
-    setIsFreeLimitReached(false);
-  }, [addLog]);
+    resetToIdle();
+  }, [addLog, resetToIdle]);
 
   const toggleMute = useCallback(() => setIsMuted(prev => !prev), []);
   const toggleSpeaker = useCallback(() => setIsSpeakerOn(prev => !prev), []);
