@@ -3,7 +3,7 @@ package com.example.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // Minimalist Dark Voice App Color Palette
-val DarkBg = Color(0xFF090B0E)
+val DarkBg = Color(0xFF080A0E)
 val DarkSurface = Color(0xFF13171F)
 val DarkSurfaceElevated = Color(0xFF1B212D)
 val DarkBorder = Color(0xFF262E3E)

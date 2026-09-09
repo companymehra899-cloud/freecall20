@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.model.AppTab
 import com.example.model.UserAccount
+import com.example.ui.theme.DarkBg
 import com.example.ui.theme.DarkBorder
 import com.example.ui.theme.DarkBorderLight
 import com.example.ui.theme.DarkSurface
@@ -101,6 +102,7 @@ fun HomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(DarkBg)
             .verticalScroll(scrollState)
             .padding(horizontal = 16.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -216,8 +218,8 @@ fun HomeScreen(
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFF11151F),
-                            Color(0xFF0D1017)
+                            DarkSurfaceElevated,
+                            DarkSurface
                         )
                     )
                 )

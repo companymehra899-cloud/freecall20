@@ -69,6 +69,7 @@ fun SubscriptionScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(DarkBg)
             .verticalScroll(scrollState)
             .navigationBarsPadding()
             .padding(horizontal = 20.dp, vertical = 12.dp)

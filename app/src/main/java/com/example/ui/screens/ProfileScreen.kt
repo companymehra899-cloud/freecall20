@@ -107,6 +107,7 @@ fun ProfileScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(DarkBg)
             .verticalScroll(scrollState)
             .padding(horizontal = 20.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
