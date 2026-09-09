@@ -42,7 +42,7 @@ export default function AuthDialog({ onDismiss, onSubmitAuth }: Props) {
     setErrorMsg('');
     setTimeout(() => {
       setIsLoading(false);
-      onSubmitAuth(name || 'English Learner', email);
+      onSubmitAuth(name, email);
     }, 600);
   };
 

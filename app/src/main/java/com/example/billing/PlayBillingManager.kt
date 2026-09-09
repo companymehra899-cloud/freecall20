@@ -92,17 +92,20 @@ class PlayBillingManager(
      * Queries official product details from Google Play Catalog using v7 API.
      */
     private fun queryAvailableProducts() {
+        queryProductType(BillingClient.ProductType.SUBS) { found ->
+            if (!found) {
+                queryProductType(BillingClient.ProductType.INAPP) { }
+            }
+        }
+    }
+
+    private fun queryProductType(productType: String, onDone: (Boolean) -> Unit) {
         val productList = listOf(
             QueryProductDetailsParams.Product.newBuilder()
                 .setProductId(VIP_5MONTHS_PRODUCT_ID)
-                .setProductType(BillingClient.ProductType.SUBS)
-                .build(),
-            QueryProductDetailsParams.Product.newBuilder()
-                .setProductId(VIP_5MONTHS_PRODUCT_ID)
-                .setProductType(BillingClient.ProductType.INAPP)
+                .setProductType(productType)
                 .build()
         )
-
         val params = QueryProductDetailsParams.newBuilder()
             .setProductList(productList)
             .build()
@@ -112,8 +115,10 @@ class PlayBillingManager(
                 val details = queryProductDetailsList.first()
                 Log.d(TAG, "Loaded product details for: ${details.productId} (${details.name})")
                 _productDetails.value = details
+                onDone(true)
             } else {
-                Log.w(TAG, "Product details query returned code ${billingResult.responseCode}: ${billingResult.debugMessage}")
+                Log.w(TAG, "Product details query ($productType) returned code ${billingResult.responseCode}: ${billingResult.debugMessage}")
+                onDone(false)
             }
         }
     }

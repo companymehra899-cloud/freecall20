@@ -136,7 +136,7 @@ fun SpeakFreeApp(viewModel: MainViewModel) {
     ) { isGranted ->
         hasAudioPermission = isGranted
         if (isGranted) {
-            viewModel.findPartner()
+            viewModel.onMicPermissionGranted()
         }
     }
 
@@ -159,17 +159,18 @@ fun SpeakFreeApp(viewModel: MainViewModel) {
     val isBillingProcessing by viewModel.isBillingProcessing.collectAsState()
     val billingMessage by viewModel.billingMessage.collectAsState()
 
-    // Active 1-on-1 Text Chat takes over screen if opened
-    if (activeChatFriend != null) {
+    if (activeChatFriend != null && callState == CallState.IDLE) {
         DirectChatScreen(
             user = user,
             friend = activeChatFriend!!,
             messages = activeChatMessages,
             onSendMessage = { viewModel.sendChatMessage(it) },
             onDirectCall = {
+                val friend = activeChatFriend!!
                 if (hasAudioPermission) {
-                    viewModel.startDirectCallWithFriend(activeChatFriend!!)
+                    viewModel.startDirectCallWithFriend(friend)
                 } else {
+                    viewModel.prepareMicPermission(friend)
                     permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                 }
             },
@@ -220,6 +221,7 @@ fun SpeakFreeApp(viewModel: MainViewModel) {
                                         if (hasAudioPermission) {
                                             viewModel.findPartner()
                                         } else {
+                                            viewModel.prepareMicPermission(null)
                                             permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                                         }
                                     },
@@ -237,6 +239,7 @@ fun SpeakFreeApp(viewModel: MainViewModel) {
                                         if (hasAudioPermission) {
                                             viewModel.startDirectCallWithFriend(friend)
                                         } else {
+                                            viewModel.prepareMicPermission(friend)
                                             permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                                         }
                                     },
@@ -311,24 +314,27 @@ fun SpeakFreeApp(viewModel: MainViewModel) {
             }
 
             CallState.ENDED, CallState.ERROR -> {
-                if (state == CallState.ERROR && !isFreeLimitReached) {
-                    Box(modifier = Modifier.fillMaxSize())
-                } else {
-                    CallEndedScreen(
-                        isLimitReached = isFreeLimitReached,
-                        statusMessage = if (state == CallState.ERROR) statusMessage else "Free 10-min call limit reached",
-                        onStartNextCall = {
-                            if (hasAudioPermission) {
-                                viewModel.findPartner()
-                            } else {
-                                permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                            }
-                        },
-                        onOpenSubscription = {
-                            viewModel.selectTab(AppTab.SUBSCRIPTION)
+                CallEndedScreen(
+                    isLimitReached = isFreeLimitReached,
+                    statusMessage = when {
+                        state == CallState.ERROR -> statusMessage.ifBlank { "Call failed" }
+                        isFreeLimitReached -> "Free 10-min call limit reached"
+                        else -> statusMessage.ifBlank { "Call completed" }
+                    },
+                    onStartNextCall = {
+                        if (hasAudioPermission) {
+                            viewModel.findPartner()
+                        } else {
+                            viewModel.prepareMicPermission(null)
+                            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                         }
-                    )
-                }
+                    },
+                    onOpenSubscription = {
+                        viewModel.dismissCallEnded()
+                        viewModel.selectTab(AppTab.SUBSCRIPTION)
+                    },
+                    onDone = { viewModel.dismissCallEnded() }
+                )
             }
         }
     }
@@ -744,7 +750,8 @@ fun CallEndedScreen(
     isLimitReached: Boolean = false,
     statusMessage: String,
     onStartNextCall: () -> Unit = {},
-    onOpenSubscription: () -> Unit = {}
+    onOpenSubscription: () -> Unit = {},
+    onDone: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -830,11 +837,27 @@ fun CallEndedScreen(
             }
         } else {
             Text(
-                text = "Returning to main screen...",
+                text = "Ready for the next practice session.",
                 color = TextMuted,
                 fontSize = 13.sp,
-                modifier = Modifier.padding(top = 6.dp)
+                modifier = Modifier.padding(top = 6.dp, bottom = 20.dp)
             )
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(EmeraldAccent)
+                    .clickable { onDone() }
+                    .padding(vertical = 14.dp)
+            ) {
+                Text(
+                    text = "Back to home",
+                    color = Color.Black,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }

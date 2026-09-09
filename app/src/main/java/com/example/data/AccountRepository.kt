@@ -126,9 +126,11 @@ class AccountRepository(context: Context) {
 
     fun registerOrLogin(name: String, email: String, uid: String): UserAccount {
         val current = _currentUser.value
+        val resolvedUid = uid.trim().ifEmpty { current.userId }
+        val fallbackName = email.trim().substringBefore("@").ifEmpty { "English Learner" }
         val updated = current.copy(
-            userId = uid,
-            displayName = name.trim().ifEmpty { "English Learner" },
+            userId = if (resolvedUid.isNotBlank()) resolvedUid else current.userId,
+            displayName = name.trim().ifEmpty { current.displayName.ifBlank { fallbackName } },
             email = email.trim(),
             isGuest = false
         )

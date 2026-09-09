@@ -158,6 +158,7 @@ export function useAppStore(): AppStore {
   const connectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const replyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const activeChatFriendIdRef = useRef<string | null>(null);
   const callSecondsRef = useRef(0);
   const subscribedRef = useRef(false);
 
@@ -315,18 +316,20 @@ export function useAppStore(): AppStore {
         totalTalkTimeSeconds: prev.totalTalkTimeSeconds + talkSeconds,
       }));
     }
-    resetToIdle();
-  }, [addLog, resetToIdle]);
+    setCallState('ENDED');
+    setIsFreeLimitReached(false);
+    setStatusMessage('Call completed');
+  }, [addLog]);
 
   const toggleMute = useCallback(() => setIsMuted(prev => !prev), []);
   const toggleSpeaker = useCallback(() => setIsSpeakerOn(prev => !prev), []);
 
   const loginWithEmail = useCallback((name: string, email: string) => {
     const cleanEmail = email.trim();
+    const fallbackName = cleanEmail.split('@')[0] || 'English Learner';
     setUser(prev => ({
       ...prev,
-      userId: cleanEmail,
-      displayName: name.trim() || 'English Learner',
+      displayName: name.trim() || prev.displayName || fallbackName,
       email: cleanEmail,
       isGuest: false,
     }));
@@ -375,11 +378,17 @@ export function useAppStore(): AppStore {
   }, [friends, addLog]);
 
   const openChatWithFriend = useCallback((friend: Friend) => {
+    activeChatFriendIdRef.current = friend.id;
     setActiveChatFriend(friend);
     setActiveChatMessages(chatStoreRef.current[friend.id] ?? []);
   }, []);
 
   const closeChat = useCallback(() => {
+    if (replyTimeoutRef.current) {
+      clearTimeout(replyTimeoutRef.current);
+      replyTimeoutRef.current = null;
+    }
+    activeChatFriendIdRef.current = null;
     setActiveChatFriend(null);
     setActiveChatMessages([]);
   }, []);
@@ -402,16 +411,19 @@ export function useAppStore(): AppStore {
     setFriends(prev => prev.map(f => f.id === friend.id ? { ...f, lastMessage: text.trim(), lastMessageTime: timeStr } : f));
 
     if (replyTimeoutRef.current) clearTimeout(replyTimeoutRef.current);
+    const friendId = friend.id;
     replyTimeoutRef.current = setTimeout(() => {
       const reply: ChatMessage = {
         id: crypto.randomUUID(),
-        senderId: friend.id,
+        senderId: friendId,
         senderName: friend.name,
         text: 'That sounds great! Would you like to do a quick voice call now?',
         timeFormatted: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
       };
-      chatStoreRef.current[friend.id] = [...(chatStoreRef.current[friend.id] ?? []), reply];
-      setActiveChatMessages(prev => [...prev, reply]);
+      chatStoreRef.current[friendId] = [...(chatStoreRef.current[friendId] ?? []), reply];
+      if (activeChatFriendIdRef.current === friendId) {
+        setActiveChatMessages(prev => [...prev, reply]);
+      }
     }, 1200);
   }, [activeChatFriend, user.userId, user.displayName]);
 

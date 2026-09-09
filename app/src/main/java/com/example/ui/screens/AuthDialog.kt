@@ -293,9 +293,8 @@ fun AuthDialog(
                                     successMsg = ""
 
                                     if (auth == null) {
-                                        // Fallback if Firebase auth service is unavailable
                                         isLoading = false
-                                        onSubmitAuth(name.ifEmpty { "English Learner" }, email, email)
+                                        onSubmitAuth(name, email, "")
                                         onDismiss()
                                         return@clickable
                                     }
@@ -315,11 +314,11 @@ fun AuthDialog(
                                                         .build()
                                                     user?.updateProfile(profileUpdates)?.addOnCompleteListener {
                                                         isLoading = false
-                                                        onSubmitAuth(name, email, email)
+                                                        onSubmitAuth(name, email, user.uid)
                                                         onDismiss()
                                                     } ?: run {
                                                         isLoading = false
-                                                        onSubmitAuth(name, email, email)
+                                                        onSubmitAuth(name, email, user?.uid ?: "")
                                                         onDismiss()
                                                     }
                                                 } else {
@@ -334,7 +333,7 @@ fun AuthDialog(
                                                     val user = auth.currentUser
                                                     isLoading = false
                                                     if (user != null) {
-                                                        onSubmitAuth(user.displayName ?: "English Learner", user.email ?: email, user.email ?: email)
+                                                        onSubmitAuth(user.displayName.orEmpty(), user.email ?: email, user.uid)
                                                         onDismiss()
                                                     } else {
                                                         errorMsg = "User not found"

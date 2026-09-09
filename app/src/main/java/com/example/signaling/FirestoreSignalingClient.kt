@@ -1,36 +1,24 @@
 package com.example.signaling
 
 import android.util.Log
-import com.example.model.IceCandidatePayload
-import com.example.model.WaitingUser
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
 import org.webrtc.IceCandidate
 import org.webrtc.SessionDescription
 import java.util.UUID
 
-/**
- * Serverless WebRTC Signaling Client powered by Firebase Firestore Free Spark Plan.
- * 
- * ZERO-COST ARCHITECTURE:
- * 1. Anonymous temporary matchmaking in "waiting_room".
- * 2. Transient SDP offer/answer and ICE candidate exchange via "rooms/{roomId}".
- * 3. The exact millisecond the peer-to-peer audio connection is established, all
- *    documents and subcollections are IMMEDIATELY deleted, and listeners detached.
- *    Result: Zero persistent database storage and minimal free tier read/write consumption.
- */
 class FirestoreSignalingClient(
-    val userId: String = UUID.randomUUID().toString()
+    var userId: String,
+    var friendCode: String
 ) {
 
     companion object {
         private const val TAG = "SignalingClient"
         private const val COLLECTION_WAITING = "waiting_room"
         private const val COLLECTION_ROOMS = "rooms"
+        private const val COLLECTION_INCOMING = "incoming_calls"
         private const val CANDIDATES_CALLER = "callerCandidates"
         private const val CANDIDATES_CALLEE = "calleeCandidates"
     }
@@ -57,29 +45,38 @@ class FirestoreSignalingClient(
     private var isCaller: Boolean = false
     private var partnerId: String? = null
 
-    // Listener registrations to cleanly detach immediately
     private var waitingRoomListener: ListenerRegistration? = null
     private var roomListener: ListenerRegistration? = null
     private var candidatesListener: ListenerRegistration? = null
+    private var incomingCallListener: ListenerRegistration? = null
+
+    private var lastOfferSdp: String? = null
+    private var lastAnswerSdp: String? = null
+    private val seenIceKeys = mutableSetOf<String>()
 
     fun setCallback(cb: Callback) {
         this.callback = cb
+        listenForIncomingCalls()
     }
 
-    /**
-     * Step 1: Matchmaking.
-     * Looks for an existing waiting peer in "waiting_room".
-     * If found, pairs with them immediately. Otherwise, posts self as waiting.
-     */
+    fun updateIdentity(newUserId: String, newFriendCode: String) {
+        if (newUserId == userId && newFriendCode == friendCode) return
+        incomingCallListener?.remove()
+        incomingCallListener = null
+        userId = newUserId
+        friendCode = newFriendCode
+        listenForIncomingCalls()
+    }
+
     fun startMatchmaking() {
+        resetSessionFlags()
         val firestore = db ?: run {
             callback?.onError("Firebase Firestore not initialized.")
             return
         }
-        // Query for another waiting user (excluding self)
         firestore.collection(COLLECTION_WAITING)
             .whereEqualTo("status", "waiting")
-            .limit(5)
+            .limit(8)
             .get()
             .addOnSuccessListener { querySnapshot ->
                 val availablePeerDoc = querySnapshot.documents.firstOrNull { doc ->
@@ -87,10 +84,8 @@ class FirestoreSignalingClient(
                 }
 
                 if (availablePeerDoc != null) {
-                    // Match found! I will act as Caller (Initiator)
-                    pairWithPeer(availablePeerDoc)
+                    pairWithPeer(availablePeerDoc.id)
                 } else {
-                    // No peer available right now, become Callee (Waiting)
                     registerSelfAsWaiting()
                 }
             }
@@ -100,18 +95,97 @@ class FirestoreSignalingClient(
             }
     }
 
-    /**
-     * Pair with an available peer found in the waiting room.
-     */
-    private fun pairWithPeer(peerDoc: DocumentSnapshot) {
+    fun startDirectCall(targetFriendCode: String) {
+        resetSessionFlags()
+        val firestore = db ?: run {
+            callback?.onError("Firebase Firestore not initialized.")
+            return
+        }
+        val cleanTarget = targetFriendCode.trim()
+        if (cleanTarget.isEmpty() || cleanTarget.equals(friendCode, ignoreCase = true)) {
+            callback?.onError("Invalid friend code for direct call.")
+            return
+        }
+
+        val generatedRoomId = UUID.randomUUID().toString()
+        isCaller = true
+        partnerId = cleanTarget
+        currentRoomId = generatedRoomId
+
+        val roomData = hashMapOf(
+            "roomId" to generatedRoomId,
+            "callerId" to userId,
+            "callerFriendCode" to friendCode,
+            "calleeFriendCode" to cleanTarget,
+            "type" to "direct",
+            "createdAt" to FieldValue.serverTimestamp()
+        )
+
+        firestore.collection(COLLECTION_ROOMS).document(generatedRoomId)
+            .set(roomData)
+            .addOnSuccessListener {
+                val invite = hashMapOf(
+                    "fromUserId" to userId,
+                    "fromFriendCode" to friendCode,
+                    "roomId" to generatedRoomId,
+                    "status" to "ringing",
+                    "createdAt" to FieldValue.serverTimestamp()
+                )
+                firestore.collection(COLLECTION_INCOMING).document(cleanTarget)
+                    .set(invite)
+                    .addOnSuccessListener {
+                        listenToRoomUpdates(generatedRoomId)
+                        listenToRemoteCandidates(generatedRoomId, isCaller = true)
+                        callback?.onMatchFound(generatedRoomId, true, cleanTarget)
+                    }
+                    .addOnFailureListener { error ->
+                        callback?.onError("Failed to send call invite: ${error.localizedMessage}")
+                    }
+            }
+            .addOnFailureListener { error ->
+                callback?.onError("Failed to create call room: ${error.localizedMessage}")
+            }
+    }
+
+    private fun listenForIncomingCalls() {
         val firestore = db ?: return
-        val peerId = peerDoc.id
+        val code = friendCode.trim()
+        if (code.isEmpty()) return
+
+        incomingCallListener?.remove()
+        incomingCallListener = firestore.collection(COLLECTION_INCOMING).document(code)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null || !snapshot.exists()) return@addSnapshotListener
+                val status = snapshot.getString("status")
+                val roomId = snapshot.getString("roomId")
+                val fromUserId = snapshot.getString("fromUserId")
+                val fromFriendCode = snapshot.getString("fromFriendCode")
+                if (status == "ringing" && roomId != null && fromUserId != null && fromUserId != userId) {
+                    if (currentRoomId != null && currentRoomId != roomId) return@addSnapshotListener
+                    snapshot.reference.update("status", "accepted")
+                    acceptIncoming(roomId, fromUserId, fromFriendCode ?: fromUserId)
+                }
+            }
+    }
+
+    private fun acceptIncoming(roomId: String, fromUserId: String, partnerLabel: String) {
+        if (currentRoomId != null && currentRoomId != roomId) return
+        resetSessionFlags()
+        isCaller = false
+        currentRoomId = roomId
+        partnerId = fromUserId
+        listenToRoomUpdates(roomId)
+        listenToRemoteCandidates(roomId, isCaller = false)
+        callback?.onMatchFound(roomId, false, partnerLabel)
+    }
+
+    private fun pairWithPeer(peerId: String) {
+        val firestore = db ?: return
         val generatedRoomId = UUID.randomUUID().toString()
         isCaller = true
         partnerId = peerId
         currentRoomId = generatedRoomId
 
-        // Atomic transaction to claim the peer and avoid race conditions
         val peerRef = firestore.collection(COLLECTION_WAITING).document(peerId)
         firestore.runTransaction { transaction ->
             val snapshot = transaction.get(peerRef)
@@ -131,11 +205,11 @@ class FirestoreSignalingClient(
             }
         }.addOnSuccessListener { claimed ->
             if (claimed) {
-                // Initialize room document
                 val roomData = hashMapOf(
                     "roomId" to generatedRoomId,
                     "callerId" to userId,
                     "calleeId" to peerId,
+                    "type" to "random",
                     "createdAt" to FieldValue.serverTimestamp()
                 )
                 firestore.collection(COLLECTION_ROOMS).document(generatedRoomId)
@@ -146,7 +220,6 @@ class FirestoreSignalingClient(
                         callback?.onMatchFound(generatedRoomId, isCaller = true, partnerId = peerId)
                     }
             } else {
-                // Peer was claimed by someone else in the same split second, register as waiting
                 registerSelfAsWaiting()
             }
         }.addOnFailureListener {
@@ -154,21 +227,19 @@ class FirestoreSignalingClient(
         }
     }
 
-    /**
-     * Registers current user as waiting in Firestore.
-     */
     private fun registerSelfAsWaiting() {
         val firestore = db ?: return
         isCaller = false
         val myWaitingDoc = firestore.collection(COLLECTION_WAITING).document(userId)
         val data = hashMapOf(
             "userId" to userId,
+            "friendCode" to friendCode,
             "status" to "waiting",
             "createdAt" to FieldValue.serverTimestamp()
         )
 
         myWaitingDoc.set(data, SetOptions.merge()).addOnSuccessListener {
-            // Listen to changes on own document to know when another user pairs with us
+            waitingRoomListener?.remove()
             waitingRoomListener = myWaitingDoc.addSnapshotListener { snapshot, error ->
                 if (error != null || snapshot == null || !snapshot.exists()) return@addSnapshotListener
 
@@ -179,10 +250,8 @@ class FirestoreSignalingClient(
                 if (status == "matched" && roomId != null && matchedWith != null) {
                     currentRoomId = roomId
                     partnerId = matchedWith
-                    // We were matched! Stop waiting room listener
                     waitingRoomListener?.remove()
                     waitingRoomListener = null
-
                     listenToRoomUpdates(roomId)
                     listenToRemoteCandidates(roomId, isCaller = false)
                     callback?.onMatchFound(roomId, isCaller = false, partnerId = matchedWith)
@@ -193,22 +262,20 @@ class FirestoreSignalingClient(
         }
     }
 
-    /**
-     * Listen for SDP offer (if callee) or SDP answer (if caller).
-     */
     private fun listenToRoomUpdates(roomId: String) {
         val firestore = db ?: return
+        roomListener?.remove()
         val roomDoc = firestore.collection(COLLECTION_ROOMS).document(roomId)
         roomListener = roomDoc.addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null || !snapshot.exists()) return@addSnapshotListener
 
             if (!isCaller) {
-                // Callee listens for Offer
                 val offerMap = snapshot.get("offer") as? Map<*, *>
                 if (offerMap != null) {
                     val sdpType = offerMap["type"] as? String
                     val sdpDescription = offerMap["sdp"] as? String
-                    if (sdpType != null && sdpDescription != null) {
+                    if (sdpType != null && sdpDescription != null && sdpDescription != lastOfferSdp) {
+                        lastOfferSdp = sdpDescription
                         val sessionDesc = SessionDescription(
                             SessionDescription.Type.fromCanonicalForm(sdpType.lowercase()),
                             sdpDescription
@@ -217,12 +284,12 @@ class FirestoreSignalingClient(
                     }
                 }
             } else {
-                // Caller listens for Answer
                 val answerMap = snapshot.get("answer") as? Map<*, *>
                 if (answerMap != null) {
                     val sdpType = answerMap["type"] as? String
                     val sdpDescription = answerMap["sdp"] as? String
-                    if (sdpType != null && sdpDescription != null) {
+                    if (sdpType != null && sdpDescription != null && sdpDescription != lastAnswerSdp) {
+                        lastAnswerSdp = sdpDescription
                         val sessionDesc = SessionDescription(
                             SessionDescription.Type.fromCanonicalForm(sdpType.lowercase()),
                             sdpDescription
@@ -234,9 +301,6 @@ class FirestoreSignalingClient(
         }
     }
 
-    /**
-     * Send SDP Offer (Caller).
-     */
     fun sendOffer(roomId: String, sdp: SessionDescription) {
         val firestore = db ?: return
         val offerData = mapOf(
@@ -245,11 +309,11 @@ class FirestoreSignalingClient(
         )
         firestore.collection(COLLECTION_ROOMS).document(roomId)
             .update("offer", offerData)
+            .addOnFailureListener { error ->
+                Log.e(TAG, "Failed to send offer", error)
+            }
     }
 
-    /**
-     * Send SDP Answer (Callee).
-     */
     fun sendAnswer(roomId: String, sdp: SessionDescription) {
         val firestore = db ?: return
         val answerData = mapOf(
@@ -258,14 +322,14 @@ class FirestoreSignalingClient(
         )
         firestore.collection(COLLECTION_ROOMS).document(roomId)
             .update("answer", answerData)
+            .addOnFailureListener { error ->
+                Log.e(TAG, "Failed to send answer", error)
+            }
     }
 
-    /**
-     * Stream local ICE candidate to Firestore.
-     */
-    fun sendIceCandidate(roomId: String, isCaller: Boolean, candidate: IceCandidate) {
+    fun sendIceCandidate(roomId: String, isCallerRole: Boolean, candidate: IceCandidate) {
         val firestore = db ?: return
-        val subcollection = if (isCaller) CANDIDATES_CALLER else CANDIDATES_CALLEE
+        val subcollection = if (isCallerRole) CANDIDATES_CALLER else CANDIDATES_CALLEE
         val candidateData = hashMapOf(
             "sdpMid" to (candidate.sdpMid ?: ""),
             "sdpMLineIndex" to candidate.sdpMLineIndex,
@@ -277,13 +341,10 @@ class FirestoreSignalingClient(
             .add(candidateData)
     }
 
-    /**
-     * Listen for remote ICE candidates sent by peer.
-     */
     private fun listenToRemoteCandidates(roomId: String, isCaller: Boolean) {
         val firestore = db ?: return
-        // If caller, listen to callee candidates. If callee, listen to caller candidates.
         val remoteSubcollection = if (isCaller) CANDIDATES_CALLEE else CANDIDATES_CALLER
+        candidatesListener?.remove()
         candidatesListener = firestore.collection(COLLECTION_ROOMS).document(roomId)
             .collection(remoteSubcollection)
             .addSnapshotListener { snapshot, error ->
@@ -295,8 +356,8 @@ class FirestoreSignalingClient(
                         val sdpMid = doc.getString("sdpMid") ?: ""
                         val sdpMLineIndex = doc.getLong("sdpMLineIndex")?.toInt() ?: 0
                         val sdp = doc.getString("sdp") ?: ""
-
-                        if (sdp.isNotEmpty()) {
+                        val iceKey = "$sdpMid|$sdpMLineIndex|$sdp"
+                        if (sdp.isNotEmpty() && seenIceKeys.add(iceKey)) {
                             val candidate = IceCandidate(sdpMid, sdpMLineIndex, sdp)
                             callback?.onRemoteIceCandidateReceived(candidate)
                         }
@@ -305,62 +366,54 @@ class FirestoreSignalingClient(
             }
     }
 
-    /**
-     * CRITICAL ZERO-COST TRIGGER:
-     * Called the exact millisecond WebRTC PeerConnection reaches CONNECTED state.
-     * Instantly deletes the signaling room, subcollections, and waiting entries from Firestore,
-     * and cancels all Firestore snapshot listeners.
-     */
     fun cleanupFirestoreOnConnected() {
         val firestore = db ?: return
-        Log.d(TAG, "WebRTC connected! Purging signaling documents for zero-cost operation.")
-
-        // 1. Immediately detach listeners so zero reads occur
-        detachAllListeners()
-
-        // 2. Delete waiting room entries
+        Log.d(TAG, "WebRTC connected. Waiting room cleanup now; ICE docs later.")
         firestore.collection(COLLECTION_WAITING).document(userId).delete()
         partnerId?.let { firestore.collection(COLLECTION_WAITING).document(it).delete() }
-
-        // 3. Delete room document and candidate collections
-        currentRoomId?.let { roomId ->
-            val roomRef = firestore.collection(COLLECTION_ROOMS).document(roomId)
-            
-            // Delete caller candidates
-            roomRef.collection(CANDIDATES_CALLER).get().addOnSuccessListener { snaps ->
-                for (doc in snaps.documents) { doc.reference.delete() }
-            }
-            // Delete callee candidates
-            roomRef.collection(CANDIDATES_CALLEE).get().addOnSuccessListener { snaps ->
-                for (doc in snaps.documents) { doc.reference.delete() }
-            }
-            // Delete main room doc
-            roomRef.delete()
+        friendCode.takeIf { it.isNotBlank() }?.let {
+            firestore.collection(COLLECTION_INCOMING).document(it).delete()
         }
     }
 
-    /**
-     * Cleanly cancels matchmaking or call when user clicks Cancel/End.
-     */
     fun cancelOrDisconnect() {
         val firestore = db
-        detachAllListeners()
+        detachSessionListeners()
         firestore?.collection(COLLECTION_WAITING)?.document(userId)?.delete()
+        friendCode.takeIf { it.isNotBlank() }?.let {
+            firestore?.collection(COLLECTION_INCOMING)?.document(it)?.delete()
+        }
         currentRoomId?.let { roomId ->
-            firestore?.collection(COLLECTION_ROOMS)?.document(roomId)?.delete()
+            val roomRef = firestore?.collection(COLLECTION_ROOMS)?.document(roomId)
+            roomRef?.collection(CANDIDATES_CALLER)?.get()?.addOnSuccessListener { snaps ->
+                for (doc in snaps.documents) {
+                    doc.reference.delete()
+                }
+            }
+            roomRef?.collection(CANDIDATES_CALLEE)?.get()?.addOnSuccessListener { snaps ->
+                for (doc in snaps.documents) {
+                    doc.reference.delete()
+                }
+            }
+            roomRef?.delete()
         }
         currentRoomId = null
         partnerId = null
+        resetSessionFlags()
     }
 
-    private fun detachAllListeners() {
+    private fun detachSessionListeners() {
         waitingRoomListener?.remove()
         waitingRoomListener = null
-
         roomListener?.remove()
         roomListener = null
-
         candidatesListener?.remove()
         candidatesListener = null
+    }
+
+    private fun resetSessionFlags() {
+        lastOfferSdp = null
+        lastAnswerSdp = null
+        seenIceKeys.clear()
     }
 }
