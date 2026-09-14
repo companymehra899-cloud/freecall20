@@ -112,7 +112,7 @@ export interface AppStore {
   openChatWithFriend: (friend: Friend) => void;
   closeChat: () => void;
   sendChatMessage: (text: string) => void;
-  findPartner: () => void;
+  findPartner: (level?: string) => void;
   startDirectCallWithFriend: (friend: Friend) => void;
   cancelSearch: () => void;
   endCall: () => void;
@@ -244,7 +244,8 @@ export function useAppStore(): AppStore {
 
   const dismissCallEnded = resetToIdle;
 
-  const findPartner = useCallback(() => {
+  const findPartner = useCallback((level?: string) => {
+    const learnerLevel = typeof level === 'string' && level.trim() ? level.trim() : 'Intermediate';
     clearTimers();
     setCallState('SEARCHING');
     setSearchingSeconds(0);
@@ -252,8 +253,8 @@ export function useAppStore(): AppStore {
     setIsSpeakerOn(true);
     setIsFreeLimitReached(false);
     setPartnerLabel('Anonymous Partner');
-    setStatusMessage('Matching you with an English learner...');
-    addLog('Matchmaking request started', 'info');
+    setStatusMessage(`Matching you with a ${learnerLevel} English learner...`);
+    addLog(`Matchmaking request started (${learnerLevel})`, 'info');
 
     let count = 0;
     searchTimerRef.current = setInterval(() => {
@@ -267,8 +268,8 @@ export function useAppStore(): AppStore {
         const partners = ['Rahul Verma (Delhi)', 'Simran Kaur (Chandigarh)', 'Amit Deshmukh (Pune)', 'Kavya Nair (Kerala)'];
         const chosen = partners[Math.floor(Math.random() * partners.length)];
         const randId = Math.floor(1000 + Math.random() * 9000).toString(16).toUpperCase();
-        setPartnerLabel(`Learner #${randId}`);
-        addLog(`Match found: ${chosen}`, 'info');
+        setPartnerLabel(`Learner #${randId} · ${learnerLevel}`);
+        addLog(`Match found: ${chosen} (${learnerLevel})`, 'info');
 
         connectTimeoutRef.current = setTimeout(() => {
           setCallState('IN_CALL');
@@ -282,13 +283,20 @@ export function useAppStore(): AppStore {
   const startDirectCallWithFriend = useCallback((friend: Friend) => {
     clearTimers();
     setPartnerLabel(friend.name);
-    setCallState('CONNECTING');
     setIsMuted(false);
     setIsSpeakerOn(true);
     setIsFreeLimitReached(false);
-    setStatusMessage(`Connecting to ${friend.name}...`);
     addLog(`Direct call: ${friend.name}`, 'write');
 
+    if (!friend.isOnline) {
+      setCallState('ERROR');
+      setStatusMessage(`${friend.name} is offline. Try again later.`);
+      addLog(`Call failed: ${friend.name} is offline`, 'delete');
+      return;
+    }
+
+    setCallState('CONNECTING');
+    setStatusMessage(`Connecting to ${friend.name}...`);
     connectTimeoutRef.current = setTimeout(() => {
       setCallState('IN_CALL');
       addLog(`P2P audio connected with ${friend.name}`, 'info');
@@ -417,15 +425,18 @@ export function useAppStore(): AppStore {
     setFriends(prev => prev.map(f => f.id === friend.id ? { ...f, lastMessage: text.trim(), lastMessageTime: timeStr } : f));
 
     const friendId = friend.id;
+    const replyText = 'That sounds great! Would you like to do a quick voice call now?';
     replyTimeoutRef.current = setTimeout(() => {
+      const replyTime = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
       const reply: ChatMessage = {
         id: crypto.randomUUID(),
         senderId: friendId,
         senderName: friend.name,
-        text: 'That sounds great! Would you like to do a quick voice call now?',
-        timeFormatted: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+        text: replyText,
+        timeFormatted: replyTime,
       };
       chatStoreRef.current[friendId] = [...(chatStoreRef.current[friendId] ?? []), reply];
+      setFriends(prev => prev.map(f => f.id === friendId ? { ...f, lastMessage: replyText, lastMessageTime: replyTime } : f));
       if (activeChatFriendIdRef.current === friendId) {
         setActiveChatMessages(prev => [...prev, reply]);
       }

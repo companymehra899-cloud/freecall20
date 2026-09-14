@@ -4,7 +4,7 @@ import type { UserAccount } from '../types';
 
 interface Props {
   user: UserAccount;
-  onFindPartnerClicked: () => void;
+  onFindPartnerClicked: (level?: string) => void;
 }
 
 const LEVELS = ['Beginner', 'Intermediate', 'Advanced'] as const;
@@ -42,7 +42,7 @@ export default function HomeScreen({ onFindPartnerClicked }: Props) {
           <div className="absolute inset-3 rounded-full border border-emerald-500/25" />
           <button
             type="button"
-            onClick={onFindPartnerClicked}
+            onClick={() => onFindPartnerClicked(selectedLevel)}
             className="absolute inset-[22%] rounded-full bg-[#0F172A] border-2 border-emerald-400 flex flex-col items-center justify-center gap-1"
           >
             <Mic className="w-6 h-6 text-[#34D399]" />
@@ -86,7 +86,7 @@ export default function HomeScreen({ onFindPartnerClicked }: Props) {
             </div>
             <button
               type="button"
-              onClick={onFindPartnerClicked}
+              onClick={() => onFindPartnerClicked(selectedLevel)}
               className="h-8 px-3 rounded-xl bg-emerald-500/20 text-[#34D399] text-xs font-bold shrink-0"
             >
               Practice
