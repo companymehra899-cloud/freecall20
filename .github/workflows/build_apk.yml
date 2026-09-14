@@ -1,15 +1,18 @@
-name: Build Android APK
+name: Build Android APK (manual)
 
+# Push builds are handled by main.yml. This workflow is kept for on-demand
+# re-runs from the Actions tab without creating a duplicate push build.
 on:
-  push:
-    branches: [ "**" ]
-  pull_request:
-    branches: [ "**" ]
   workflow_dispatch:
+
+concurrency:
+  group: android-apk-manual-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
 
     steps:
       - name: Checkout Code
@@ -23,13 +26,18 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-36'
+
+      - name: Accept Android SDK licenses
+        run: yes | sdkmanager --licenses > /dev/null || true
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: '9.3.1'
 
-      - name: Generate Gradle Wrapper if missing
+      - name: Ensure Gradle Wrapper exists
         run: |
           if [ ! -f gradlew ]; then
             gradle wrapper --gradle-version 9.3.1
@@ -39,9 +47,13 @@ jobs:
       - name: Build Debug APK
         run: ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Upload Debug APK Artifact
+      - name: List built APKs
+        run: find app/build/outputs/apk -name "*.apk" -print
+
+      - name: Upload Debug APK Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 14
+          name: speakfree-debug-apk-manual
+          path: app/build/outputs/apk/debug/**/*.apk
+          if-no-files-found: error
+          retention-days: 30
