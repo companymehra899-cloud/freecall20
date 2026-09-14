@@ -158,13 +158,14 @@ export function useAppStore(): AppStore {
   const connectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const replyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const purchaseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeChatFriendIdRef = useRef<string | null>(null);
   const callSecondsRef = useRef(0);
   const subscribedRef = useRef(false);
 
   useEffect(() => {
     chatStoreRef.current = seedChats(user.userId);
-  }, []);
+  }, [user.userId]);
 
   useEffect(() => {
     subscribedRef.current = user.isSubscribed;
@@ -225,11 +226,13 @@ export function useAppStore(): AppStore {
   }, [addLog]);
 
   const resetToIdle = useCallback(() => {
+    clearTimers();
     if (resetTimeoutRef.current) {
       clearTimeout(resetTimeoutRef.current);
       resetTimeoutRef.current = null;
     }
     setCallState('IDLE');
+    setCurrentTab('HOME');
     setCallDurationFormatted('00:00');
     setCallDurationSeconds(0);
     callSecondsRef.current = 0;
@@ -237,7 +240,7 @@ export function useAppStore(): AppStore {
     setStatusMessage('');
     setIsFreeLimitReached(false);
     setSearchingSeconds(0);
-  }, []);
+  }, [clearTimers]);
 
   const dismissCallEnded = resetToIdle;
 
@@ -308,6 +311,7 @@ export function useAppStore(): AppStore {
       callTimerRef.current = null;
     }
     const talkSeconds = callSecondsRef.current;
+    callSecondsRef.current = 0;
     addLog('Call ended', 'info');
     if (talkSeconds > 0) {
       setUser(prev => ({
@@ -329,7 +333,7 @@ export function useAppStore(): AppStore {
     const fallbackName = cleanEmail.split('@')[0] || 'English Learner';
     setUser(prev => ({
       ...prev,
-      displayName: name.trim() || prev.displayName || fallbackName,
+      displayName: name.trim() || (prev.isGuest ? fallbackName : prev.displayName) || fallbackName,
       email: cleanEmail,
       isGuest: false,
     }));
@@ -338,6 +342,12 @@ export function useAppStore(): AppStore {
   }, [addLog]);
 
   const logout = useCallback(() => {
+    if (purchaseTimeoutRef.current) {
+      clearTimeout(purchaseTimeoutRef.current);
+      purchaseTimeoutRef.current = null;
+    }
+    setIsBillingProcessing(false);
+    setBillingMessage(null);
     setUser(createGuestUser());
     setCurrentTab('HOME');
     addLog('Logged out. Guest mode.', 'info');
@@ -384,10 +394,6 @@ export function useAppStore(): AppStore {
   }, []);
 
   const closeChat = useCallback(() => {
-    if (replyTimeoutRef.current) {
-      clearTimeout(replyTimeoutRef.current);
-      replyTimeoutRef.current = null;
-    }
     activeChatFriendIdRef.current = null;
     setActiveChatFriend(null);
     setActiveChatMessages([]);
@@ -410,7 +416,6 @@ export function useAppStore(): AppStore {
     setActiveChatMessages(prev => [...prev, msg]);
     setFriends(prev => prev.map(f => f.id === friend.id ? { ...f, lastMessage: text.trim(), lastMessageTime: timeStr } : f));
 
-    if (replyTimeoutRef.current) clearTimeout(replyTimeoutRef.current);
     const friendId = friend.id;
     replyTimeoutRef.current = setTimeout(() => {
       const reply: ChatMessage = {
@@ -436,18 +441,20 @@ export function useAppStore(): AppStore {
     setBillingMessage(null);
     addLog('Launching purchase flow', 'info');
 
-    setTimeout(() => {
+    if (purchaseTimeoutRef.current) clearTimeout(purchaseTimeoutRef.current);
+    purchaseTimeoutRef.current = setTimeout(() => {
+      purchaseTimeoutRef.current = null;
       const generatedOrderId = `GPA.${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(1000 + Math.random() * 9000)}`;
       const expiry = new Date();
       expiry.setMonth(expiry.getMonth() + 5);
       const formattedExpiry = expiry.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 
-      setUser(prev => ({
+      setUser(prev => prev.isGuest ? prev : {
         ...prev,
         isSubscribed: true,
         subscriptionExpiryDate: formattedExpiry,
         googlePlayOrderId: generatedOrderId,
-      }));
+      });
       setIsBillingProcessing(false);
       addLog('VIP plan activated', 'info');
     }, 1200);
@@ -469,6 +476,7 @@ export function useAppStore(): AppStore {
     return () => {
       clearTimers();
       if (replyTimeoutRef.current) clearTimeout(replyTimeoutRef.current);
+      if (purchaseTimeoutRef.current) clearTimeout(purchaseTimeoutRef.current);
     };
   }, [clearTimers]);
 

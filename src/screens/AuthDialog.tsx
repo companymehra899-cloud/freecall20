@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { X, Mail, Lock, User as UserIcon, Eye, EyeOff, Loader2 } from 'lucide-react';
 import type { AuthStep } from '../types';
 
@@ -15,6 +15,13 @@ export default function AuthDialog({ onDismiss, onSubmitAuth }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const submitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (submitTimeoutRef.current) clearTimeout(submitTimeoutRef.current);
+    };
+  }, []);
 
   const handleSubmit = () => {
     const email = emailInput.trim();
@@ -40,7 +47,9 @@ export default function AuthDialog({ onDismiss, onSubmitAuth }: Props) {
 
     setIsLoading(true);
     setErrorMsg('');
-    setTimeout(() => {
+    if (submitTimeoutRef.current) clearTimeout(submitTimeoutRef.current);
+    submitTimeoutRef.current = setTimeout(() => {
+      submitTimeoutRef.current = null;
       setIsLoading(false);
       onSubmitAuth(name, email);
     }, 600);
