@@ -82,10 +82,42 @@ android {
         "META-INF/NOTICE.txt",
         "META-INF/notice.txt",
         "META-INF/ASL2.0",
-        "META-INF/*.kotlin_module"
+        "META-INF/*.kotlin_module",
+        "META-INF/*.version",
+        "META-INF/versions/**",
+        "DebugProbesKt.bin",
+        "kotlin-tooling-metadata.json",
+        "**/*.kotlin_metadata",
+        "META-INF/com.android.tools/**",
+        "META-INF/androidx/**"
       )
     }
   }
+
+  // Strip UI strings for locales the app does not ship, removing AndroidX /
+  // Firebase / Play Services translations and trimming hundreds of KB.
+  androidResources {
+    localeFilters += listOf("en", "hi")
+  }
+
+  // Produce one APK per CPU architecture so each download only carries its own
+  // WebRTC native libraries instead of bundling both ABIs together.
+  splits {
+    abi {
+      isEnable = true
+      reset()
+      include("arm64-v8a", "armeabi-v7a")
+      isUniversalApk = false
+    }
+  }
+
+  // For the Play Store AAB, let the store split language, density and ABI.
+  bundle {
+    language { enableSplit = true }
+    density { enableSplit = true }
+    abi { enableSplit = true }
+  }
+
   testOptions { unitTests { isIncludeAndroidResources = true } }
   dependenciesInfo {
     includeInApk = false
@@ -115,9 +147,7 @@ dependencies {
   implementation(libs.androidx.compose.ui.graphics)
   implementation(libs.androidx.compose.ui.tooling.preview)
   implementation(libs.androidx.core.ktx)
-  implementation(libs.androidx.lifecycle.runtime.compose)
   implementation(libs.androidx.lifecycle.runtime.ktx)
-  implementation(libs.androidx.lifecycle.viewmodel.compose)
   implementation(libs.coil.compose)
 
   // Firebase (Firestore & Auth)
